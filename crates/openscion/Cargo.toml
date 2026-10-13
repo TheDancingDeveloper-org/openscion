@@ -23,6 +23,9 @@ openscion-core = { workspace = true }
 clap = { workspace = true }
 thiserror = { workspace = true }
 ureq = { workspace = true }
+# Request and response bodies, and the working copy's `.scn/state.json`.
+serde = { workspace = true }
+serde_json = { workspace = true }
 
 [dev-dependencies]
 # Tests run a real server in-process and point the client at it.

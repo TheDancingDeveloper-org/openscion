@@ -1,12 +1,15 @@
 //! Crate-wide error and result types for the client.
 
+use std::path::PathBuf;
+
 use openscion_core::PROTOCOL_VERSION;
 
 /// Errors returned by `scn`.
 #[derive(Debug, thiserror::Error)]
 #[non_exhaustive]
 pub enum Error {
-    /// The server could not be reached, or answered with an error status.
+    /// The server could not be reached, or answered with an error status and
+    /// no error body.
     #[error("request to {url} failed: {message}")]
     Request {
         /// The URL that was requested.
@@ -31,6 +34,48 @@ pub enum Error {
         /// The server's protocol version.
         server: (u32, u32),
     },
+    /// The server rejected a request and said why.
+    #[error("{url} answered {status} {code}: {message}")]
+    Server {
+        /// The URL that was requested.
+        url: String,
+        /// The HTTP status.
+        status: u16,
+        /// The error code, such as `RefConflict`.
+        code: String,
+        /// The server's explanation.
+        message: String,
+    },
+    /// The engine rejected local data: a bad path, or an object whose bytes
+    /// do not match its id.
+    #[error(transparent)]
+    Engine(#[from] openscion_core::Error),
+    /// A file in the working copy could not be read or written.
+    #[error("{}: {source}", path.display())]
+    Io {
+        /// The file or directory involved.
+        path: PathBuf,
+        /// The underlying failure.
+        #[source]
+        source: std::io::Error,
+    },
+    /// The directory is not an `scn` working copy.
+    #[error("{} is not an scn working copy (no .scn/state.json)", .0.display())]
+    NotAWorkingCopy(PathBuf),
+    /// The directory is already an `scn` working copy, or is not empty.
+    #[error("{} already holds a working copy or other files", .0.display())]
+    AlreadyExists(PathBuf),
+    /// The working copy's state file is not valid.
+    #[error("{}: corrupt working-copy state: {message}", path.display())]
+    BadState {
+        /// The state file.
+        path: PathBuf,
+        /// Why it could not be read.
+        message: String,
+    },
+    /// `scn commit` found no changes.
+    #[error("nothing to commit")]
+    NothingToCommit,
     /// Writing command output failed.
     #[error("cannot write output: {0}")]
     Output(#[source] std::io::Error),
