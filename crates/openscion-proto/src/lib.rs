@@ -27,7 +27,7 @@
 //!
 //! # This crate sits underneath the engine, not beside it
 //!
-//! `openscion` **depends on this crate and re-exports all of it**, so
+//! `openscion-core` **depends on this crate and re-exports all of it**, so
 //! `openscion_core::GreetRequest` and `openscion_proto::greeting::GreetRequest` are
 //! the *same type*, not structural twins. A parallel set of payload types for
 //! clients would mean a conversion at every call site that nothing checks.

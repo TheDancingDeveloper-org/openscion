@@ -36,7 +36,7 @@
 //! # What is deliberately not here
 //!
 //! No source control logic. Hashing, validation, the log, and refs live in the
-//! `openscion` engine; this crate translates HTTP to engine calls and back.
+//! `openscion-core` engine; this crate translates HTTP to engine calls and back.
 
 mod config;
 mod error;

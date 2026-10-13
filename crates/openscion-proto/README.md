@@ -15,9 +15,9 @@ needs the vocabulary, not the engine. This crate is the vocabulary.
 
 Two dependencies, both pure Rust: `serde` and `serde_json`.
 
-## This crate sits underneath `openscion`
+## This crate sits underneath `openscion-core`
 
-`openscion` **depends on this crate and re-exports all of it**. A client needs
+`openscion-core` **depends on this crate and re-exports all of it**. A client needs
 the payload types and nothing else; making it depend on the engine to spell a
 request type would be the wrong shape. A parallel set of payload types for
 clients would be worse: two definitions of one request are two distinct types,

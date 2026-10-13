@@ -14,7 +14,7 @@
 //! - [`openscion_proto`] — the protocol. Payload types and the protocol
 //!   version, with no transport and no behavior. A client that only makes calls
 //!   depends on that crate alone.
-//! - `openscion` — this crate. The behavior and the crate-wide error type.
+//! - `openscion-core` — this crate. The behavior and the crate-wide error type.
 //!
 //! Within this crate:
 //!
