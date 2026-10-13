@@ -16,8 +16,9 @@ docs/
 └── adr/           # architecture decision records, numbered and immutable
 ```
 
-- **`research/`** — notes on prior art, starting with
-  [`research/scion.md`](research/scion.md). Source material, not requirements.
+- **[`research/`](research/README.md)** — notes on prior art: Scion, git
+  internals, git transfer and scaling, GitHub, and GitLab. Source material,
+  not requirements.
 - **[`specs/`](specs/README.md)** — one file per feature, module, or subsystem,
   describing its behavior, public surface, invariants, and acceptance criteria.
 - **[`plans/`](plans/README.md)** — implementation-ordered, test-first steps for
