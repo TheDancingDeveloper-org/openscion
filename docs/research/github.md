@@ -10,7 +10,7 @@ service, which is the model mismatch Scion was built to escape (see
 have to interoperate with.
 
 Figures are as of the post or page cited. Where GitHub has not published how
-something works, this document says so rather than guessing.
+something works, this document says so.
 
 ## Storage: Spokes
 
@@ -40,10 +40,7 @@ different racks, treating racks as availability zones. Spokes has no primary:
 majority of replicas, is accepted only if a strict majority applies it with the
 same result, and is reverted otherwise; losing replicas are marked unhealthy
 until repaired with a mix of git and rsync. On a typical day a few dozen writes
-out of many millions failed to get a unanimous vote. Failure detection uses live
-traffic (three consecutive failures mark a node offline), tracked per
-application server so that one bad client is distinguishable from a bad file
-server.
+out of many millions failed to get a unanimous vote. Failure detection uses live traffic, tracked per application server.
 
 ### Ref updates: three-phase commit and checksums
 
@@ -141,12 +138,10 @@ Scientist experiments against production traffic:
 - rebases: 730,000 experimental runs took 2.56 hours on libgit2 and under
   10 minutes on `merge-ort`.
 
-The broader pattern is visible across these posts: GitHub fixes scaling
-problems by contributing to upstream git (ref transactions, bitmaps, MIDX
-bitmaps, geometric repacking, cruft packs, `git replay`) and running the same
-code it ships. The internal RPC layer between the Rails application and the
-file servers has not been described publicly in the sources above, so this
-document does not characterize it.
+Across these posts GitHub fixes scaling problems upstream in git (ref
+transactions, bitmaps, MIDX bitmaps, geometric repacking, cruft packs,
+`git replay`). The RPC layer between the Rails application and the file servers
+is not described in these sources, so this document does not characterize it.
 
 ## Serving clones and fetches
 
@@ -407,19 +402,13 @@ with gaps, so integrations reconcile against the API.
 
 GitHub's own monorepo, `github/github`, recurs across these posts: about 57 GB
 before cruft packs, migrated off deploy trains to merge queue, and the
-benchmark for the `merge-ort` rollout. The documented pain falls into a few
-groups:
-
-- **Push failures** from maintenance timeouts, a per-server push throttle, and
-  long replica locks (Project Cyclops, 2021).
-- **Maintenance cost** growing with total size until repacking became
-  incremental (geometric, MIDX bitmaps, cruft packs).
-- **Clone and fetch cost**, addressed with bitmaps, protocol v2, and partial
-  clone, with shallow clones discouraged for anything but disposable CI.
-- **Pack bloat** from delta heuristics, fixed by tuned server-side repacks
-  (Dropbox).
-- **Merge throughput**, which merge queue raised but the published guidance
-  still puts at about one merge per minute per repository.
+benchmark for the `merge-ort` rollout. The documented pain is push failures
+from maintenance timeouts, a per-server push throttle, and long replica locks
+(Project Cyclops, 2021); maintenance cost that grew with total size until
+repacking became incremental; clone and fetch cost, addressed with bitmaps,
+protocol v2, and partial clone; pack bloat from delta heuristics (Dropbox); and
+merge throughput, which merge queue raised but the published guidance still
+puts at about one merge per minute per repository.
 
 ## Where cost scales
 
