@@ -88,17 +88,14 @@ filtering they measured a 3x improvement for no-op single-branch fetches and an
 8x reduction in non-packfile overhead bytes. v2 shipped in git 2.18 and became
 the default in 2.26 ([release notes](https://github.com/git/git/blob/master/Documentation/RelNotes/2.26.0.adoc)).
 
-**v2 `fetch` arguments.** `want <oid>`, `have <oid>`, `done`, `thin-pack`,
-`ofs-delta`, `include-tag`, `no-progress`; shallow controls `shallow`,
-`deepen`, `deepen-relative`, `deepen-since`, `deepen-not`; `filter <spec>` for
-partial clone; `want-ref <ref>` to ask for a ref by name; `sideband-all`;
-`packfile-uris <protocols>`; and `wait-for-done`. The response is a sequence
-of optional sections separated by delim-pkts: `acknowledgments`,
-`shallow-info`, `wanted-refs`, `packfile-uris`, and finally `packfile`. The v2
-text says wants "are not limited to advertised objects", but `upload-pack`
-still enforces its own policy: `uploadpack.allowTipSHA1InWant`,
-`allowReachableSHA1InWant`, and `allowAnySHA1InWant` govern which unadvertised
-ids a client may name ([uploadpack config](https://git-scm.com/docs/git-config#Documentation/git-config.txt-uploadpackallowAnySHA1InWant)).
+**v2 `fetch`** takes `want`, `have`, `done`, pack options (`thin-pack`,
+`ofs-delta`, `include-tag`), shallow controls (`shallow`, `deepen`,
+`deepen-relative`, `deepen-since`, `deepen-not`), `filter`, `want-ref`,
+`sideband-all`, `packfile-uris`, and `wait-for-done`. The response is optional
+sections (`acknowledgments`, `shallow-info`, `wanted-refs`, `packfile-uris`)
+then `packfile`. Wants "are not limited to advertised objects", but
+upload-pack's `uploadpack.allow{Tip,Reachable,Any}SHA1InWant` settings decide
+which unadvertised ids it accepts.
 
 **Where cost scales.** In v0 every fetch pays for the full ref advertisement,
 proportional to the number of refs, before any work starts. v2 removes that
