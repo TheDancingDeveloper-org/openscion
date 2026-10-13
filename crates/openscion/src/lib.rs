@@ -2,13 +2,19 @@
 //!
 //! In the full design (`docs/specs/openscion-architecture.md`) `scn` lays out
 //! a sparse working copy, watches it for edits, uploads blobs, and wraps the
-//! server's history and landing APIs. Today it implements the commands the
-//! server can already answer:
+//! server's history and landing APIs. The MVP implements:
 //!
 //! | Command | What it does |
 //! | --- | --- |
 //! | `scn version` | prints the client and protocol versions |
 //! | `scn server-info` | asks the server for its version and checks the protocol binds |
+//! | `scn import [DIR]` | records a directory as the first changeset and creates `main` |
+//! | `scn commit -m MSG` | records what changed and moves `main` by compare-and-swap |
+//! | `scn clone DEST [--path DIR]` | fetches a snapshot, or one directory of it |
+//!
+//! A working copy keeps its state in `.scn/state.json`: the server, the ref,
+//! the base changeset, and each file's blob id and stat data, so a commit
+//! re-reads only files whose size or modification time changed.
 //!
 //! Every command that talks to a server takes `--server <url>` or the
 //! `OPENSCION_SERVER` environment variable, defaulting to
@@ -29,10 +35,12 @@
 
 mod cli;
 mod client;
+mod commands;
 mod error;
 #[cfg(test)]
 mod test_support;
+mod workcopy;
 
-pub use cli::{Cli, Command, DEFAULT_SERVER, run};
+pub use cli::{Cli, Command, DEFAULT_AUTHOR, DEFAULT_REF, DEFAULT_SERVER, run};
 pub use client::ServerClient;
 pub use error::{Error, Result};

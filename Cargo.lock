@@ -613,6 +613,8 @@ dependencies = [
  "clap",
  "openscion-core",
  "openscion-server",
+ "serde",
+ "serde_json",
  "thiserror",
  "tokio",
  "ureq",
