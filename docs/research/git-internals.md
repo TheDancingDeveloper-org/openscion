@@ -211,9 +211,8 @@ Both satisfy "if A can reach B, then gen(A) > gen(B)", so a walk can stop
 expanding any commit whose generation is below its target. That pruning is what
 makes `merge-base`, `--contains`, and `--topo-order` fast. v2 keeps that
 guarantee while staying close to commit dates, which git's older date-based
-heuristics already relied on. The `GDA2`/`GDO2` chunk ids replaced `GDAT`/`GDOV`
-after older git wrote possibly erroneous data under the original names; newer
-git ignores the old chunks.
+heuristics already relied on. (`GDA2`/`GDO2` replaced the original
+`GDAT`/`GDOV` ids after older git wrote possibly erroneous data under them.)
 
 **Changed-path Bloom filters.** Since Git 2.27, `git commit-graph write
 --changed-paths` stores one Bloom filter per commit over the paths that changed
