@@ -10,7 +10,7 @@ Scion, in
 
 ## Benchmarks
 
-The phase-1 MVP — an in-memory server and the `scn` client — against git on
+The OpenScion MVP — an in-memory server and the `scn` client — against git on
 synthetic repositories of 4 KiB files (`cargo run -p openscion-benchmarks
 --release`):
 
