@@ -1,0 +1,230 @@
+//! Tests for the API routes, over a real socket.
+
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
+use axum::http::StatusCode;
+use openscion_core::{
+    Change, ChangesetInfo, ChangesetRecord, CreateChangeset, EntryKind, ErrorBody, FetchObjects,
+    FrameWriter, ObjectId, ObjectKind, RefValue, RepoPath, StoredObjects, UpdateRef, decode_frames,
+    decode_tree, object_id,
+};
+use serde_json::Value;
+
+use super::ApiError;
+use crate::{Server, ServerConfig};
+
+/// Starts a server on its own runtime thread and returns its base URL.
+fn start() -> String {
+    let (sender, receiver) = std::sync::mpsc::channel();
+    std::thread::spawn(move || {
+        let runtime = tokio::runtime::Runtime::new().unwrap();
+        runtime.block_on(async {
+            let server = Server::bind(&ServerConfig::new("127.0.0.1:0".parse().unwrap()))
+                .await
+                .unwrap();
+            sender.send(server.local_addr()).unwrap();
+            server.serve(std::future::pending()).await.unwrap();
+        });
+    });
+    format!("http://{}", receiver.recv().unwrap())
+}
+
+fn agent() -> ureq::Agent {
+    ureq::Agent::config_builder()
+        .http_status_as_error(false)
+        .build()
+        .into()
+}
+
+fn post_json(url: &str, body: &impl serde::Serialize) -> (u16, Value) {
+    let mut response = agent().post(url).send_json(body).unwrap();
+    (
+        response.status().as_u16(),
+        response.body_mut().read_json().unwrap(),
+    )
+}
+
+fn get_json(url: &str) -> (u16, Value) {
+    let mut response = agent().get(url).call().unwrap();
+    (
+        response.status().as_u16(),
+        response.body_mut().read_json().unwrap(),
+    )
+}
+
+fn upload(base: &str, blobs: &[&[u8]]) -> Vec<ObjectId> {
+    let mut frames = FrameWriter::new();
+    for blob in blobs {
+        frames.push(object_id(ObjectKind::Blob, blob), blob);
+    }
+    let mut response = agent()
+        .post(format!("{base}/v1/blobs"))
+        .send(&frames.finish()[..])
+        .unwrap();
+    assert_eq!(response.status().as_u16(), 200);
+    response
+        .body_mut()
+        .read_json::<StoredObjects>()
+        .unwrap()
+        .ids
+}
+
+fn create(base: &str, request: &CreateChangeset) -> ChangesetInfo {
+    let (status, body) = post_json(&format!("{base}/v1/changesets"), request);
+    assert_eq!(status, 200, "{body}");
+    serde_json::from_value(body).unwrap()
+}
+
+fn file(path: &str, blob: ObjectId) -> Change {
+    Change::Upsert {
+        path: RepoPath::new(path).unwrap(),
+        kind: EntryKind::File,
+        blob,
+    }
+}
+
+#[test]
+fn a_client_can_upload_commit_move_a_ref_and_fetch_the_snapshot() {
+    let base = start();
+    let ids = upload(&base, &[b"one", b"two"]);
+    assert_eq!(ids[0], object_id(ObjectKind::Blob, b"one"));
+
+    let request = CreateChangeset::new(
+        vec![],
+        vec![file("a/one.txt", ids[0]), file("two.txt", ids[1])],
+        "test",
+        "init",
+    );
+    let info = create(&base, &request);
+
+    let (status, body) = post_json(
+        &format!("{base}/v1/refs/main"),
+        &UpdateRef::new(None, info.id),
+    );
+    assert_eq!(status, 200);
+    let main: RefValue = serde_json::from_value(body).unwrap();
+    assert_eq!((main.target, main.version), (info.id, 1));
+
+    let (status, body) = get_json(&format!("{base}/v1/refs/main"));
+    assert_eq!(status, 200);
+    assert_eq!(serde_json::from_value::<RefValue>(body).unwrap(), main);
+
+    let (status, body) = get_json(&format!("{base}/v1/changesets/{}", info.id));
+    assert_eq!(status, 200);
+    let record: ChangesetRecord = serde_json::from_value(body).unwrap();
+    assert_eq!(record.info, info);
+
+    let mut response = agent()
+        .post(format!("{base}/v1/objects"))
+        .send_json(FetchObjects::new(vec![info.root_tree, ids[1]]))
+        .unwrap();
+    assert_eq!(
+        response.headers()["content-type"],
+        "application/octet-stream"
+    );
+    let bytes = response.body_mut().read_to_vec().unwrap();
+    let frames = decode_frames(&bytes).unwrap();
+    assert_eq!(frames.len(), 2);
+    let root = decode_tree(frames[0].1).unwrap();
+    assert_eq!(root[0].name, "a");
+    assert_eq!(frames[1], (ids[1], &b"two"[..]));
+}
+
+#[test]
+fn refs_with_slashes_in_their_names_are_routed() {
+    let base = start();
+    let ids = upload(&base, &[b"x"]);
+    let info = create(
+        &base,
+        &CreateChangeset::new(vec![], vec![file("x", ids[0])], "t", "m"),
+    );
+    let (status, body) = post_json(
+        &format!("{base}/v1/refs/release/1.0"),
+        &UpdateRef::new(None, info.id),
+    );
+    assert_eq!(status, 200);
+    assert_eq!(body["name"], "release/1.0");
+}
+
+fn error(status_and_body: (u16, Value)) -> (u16, String) {
+    let (status, body) = status_and_body;
+    (
+        status,
+        serde_json::from_value::<ErrorBody>(body).unwrap().code,
+    )
+}
+
+#[test]
+fn failures_map_to_status_codes_and_error_bodies() {
+    let base = start();
+    let ghost = ObjectId::from_bytes([7; 32]);
+
+    assert_eq!(
+        error(get_json(&format!("{base}/v1/refs/main"))),
+        (404, "NotFound".to_owned())
+    );
+    assert_eq!(
+        error(get_json(&format!("{base}/v1/changesets/{ghost}"))),
+        (404, "NotFound".to_owned())
+    );
+    assert_eq!(
+        error(get_json(&format!("{base}/v1/changesets/not-an-id"))),
+        (400, "InvalidArgument".to_owned())
+    );
+    assert_eq!(
+        error(post_json(
+            &format!("{base}/v1/objects"),
+            &FetchObjects::new(vec![ghost])
+        )),
+        (404, "NotFound".to_owned())
+    );
+    let request = CreateChangeset::new(vec![], vec![file("x", ghost)], "t", "m");
+    assert_eq!(
+        error(post_json(&format!("{base}/v1/changesets"), &request)),
+        (404, "NotFound".to_owned())
+    );
+
+    let ids = upload(&base, &[b"x"]);
+    let info = create(
+        &base,
+        &CreateChangeset::new(vec![], vec![file("x", ids[0])], "t", "m"),
+    );
+    let swap = UpdateRef::new(Some(info.id), info.id);
+    assert_eq!(
+        error(post_json(&format!("{base}/v1/refs/main"), &swap)),
+        (409, "RefConflict".to_owned())
+    );
+}
+
+#[test]
+fn uploads_with_a_wrong_id_or_a_truncated_frame_are_rejected() {
+    let base = start();
+    let mut frames = FrameWriter::new();
+    frames.push(ObjectId::from_bytes([1; 32]), b"lies");
+    let mut response = agent()
+        .post(format!("{base}/v1/blobs"))
+        .send(&frames.finish()[..])
+        .unwrap();
+    assert_eq!(response.status().as_u16(), 400);
+    let body: ErrorBody = response.body_mut().read_json().unwrap();
+    assert_eq!(body.code, "CorruptObject");
+
+    let mut response = agent()
+        .post(format!("{base}/v1/blobs"))
+        .send(&[1u8, 2, 3][..])
+        .unwrap();
+    assert_eq!(response.status().as_u16(), 400);
+    let body: ErrorBody = response.body_mut().read_json().unwrap();
+    assert_eq!(body.code, "Malformed");
+}
+
+#[test]
+fn engine_errors_other_than_lookups_and_conflicts_are_bad_requests() {
+    let error = ApiError::from(openscion_core::Error::InvalidChange {
+        path: "a".to_owned(),
+        rule: "path changed twice",
+    });
+    let (status, body) = error.parts();
+    assert_eq!(status, StatusCode::BAD_REQUEST);
+    assert_eq!(body.code, "InvalidChange");
+}

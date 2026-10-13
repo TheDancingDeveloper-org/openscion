@@ -650,6 +650,7 @@ dependencies = [
  "axum",
  "clap",
  "openscion-core",
+ "serde",
  "serde_json",
  "thiserror",
  "tokio",
