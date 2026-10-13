@@ -449,9 +449,8 @@ current, and understood by every tool that reads the repository.
 
 ## What this means for OpenScion
 
-The OpenScion spec keeps git's content addressing and replaces most of the rest.
-The references below are to
-[`openscion-data-model.md`](../specs/openscion-data-model.md).
+The OpenScion spec keeps git's content addressing and replaces most of the rest
+([data model](../specs/openscion-data-model.md)).
 
 | Git mechanism | OpenScion |
 | --- | --- |
@@ -468,14 +467,14 @@ The references below are to
 | Rename detection inferred at diff time | Not recorded either. Copy detection is listed as a later derived kind. |
 | Loose refs and packed-refs updated through `.lock` files; reftable stack | A ref is one record moved by **compare-and-swap** against its expected value. No lock files, and no operation moves two refs at once. Few refs are expected. |
 | Reflogs | Not specified; each ref carries a `version` that increases on every move. |
-| Commit creation tied to updating a ref | Appending a changeset to the log never reads or writes a ref. |
+| `git commit` writes the commit and moves the branch ref in one step | Appending a changeset to the log never reads or writes a ref. |
 | Merge and rebase on the client, with `merge-tree` and `replay` as server-side building blocks | Merges and rebases run on the server and cost the size of the change. |
 | Index, split and sparse index, untracked cache, fsmonitor | The client `scn` keeps a sparse working copy and a filesystem watcher. The server never needs an index. |
 | Sparse checkout limits files, not objects | The client fetches only the trees and blobs under the paths it needs, so sparse checkout needs no protocol support. |
 | Worktrees and submodules | Not modelled in the data model. |
 
-Two git lessons carry over directly. First, every format that embeds an id is
-committed to its hash function forever, which is why the OpenScion encodings
-are pinned byte for byte with golden tests. Second, git's fastest paths are all
+Two git lessons carry over directly. First, every format that embeds an id is tied
+to its hash function, and changing one means translating everything, which is why the OpenScion encodings
+are pinned byte for byte with golden tests. Second, many of git's fastest paths are
 derived caches added after the fact (commit-graph, Bloom filters, bitmaps,
 cache tree); OpenScion starts from that model instead of retrofitting it.
