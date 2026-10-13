@@ -3,11 +3,11 @@
 <text x="600.0" y="62" font-size="36" font-weight="700" fill="#141413" text-anchor="middle">OpenScion vs git on synthetic repositories</text>
 <rect x="32" y="92" width="1136" height="1062" rx="22" fill="#faf9f5"/>
 <text x="420" y="150" font-size="21" font-weight="700" fill="#141413" text-anchor="start">Repository with 1,000 files</text>
-<rect x="790" y="126" width="150" height="34" rx="9" fill="none" stroke="#6b6a65" stroke-width="1.5"/>
-<rect x="806" y="135" width="16" height="16" rx="3" fill="#6f6d66"/>
-<text x="829" y="149" font-size="16" font-weight="400" fill="#6b6a65" text-anchor="start">git</text>
-<rect x="874" y="135" width="16" height="16" rx="3" fill="#d97757"/>
-<text x="897" y="149" font-size="16" font-weight="400" fill="#6b6a65" text-anchor="start">opnscn</text>
+<rect x="764" y="126" width="176" height="34" rx="9" fill="none" stroke="#6b6a65" stroke-width="1.5"/>
+<rect x="780" y="135" width="16" height="16" rx="3" fill="#6f6d66"/>
+<text x="803" y="149" font-size="16" font-weight="400" fill="#6b6a65" text-anchor="start">git</text>
+<rect x="850" y="135" width="16" height="16" rx="3" fill="#d97757"/>
+<text x="873" y="149" font-size="16" font-weight="400" fill="#6b6a65" text-anchor="start">opnscn</text>
 <text x="1010" y="150" font-size="16" font-weight="400" fill="#6b6a65" text-anchor="start">Faster</text>
 <line x1="420.0" y1="178" x2="420.0" y2="330" stroke="#e3e1d9" stroke-width="1.5"/>
 <line x1="593.3" y1="178" x2="593.3" y2="330" stroke="#e3e1d9" stroke-width="1.5"/>
