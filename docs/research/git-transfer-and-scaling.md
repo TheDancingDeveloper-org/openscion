@@ -31,18 +31,12 @@ cheaply, or avoids sending a pack at all.
 Sources: [gitprotocol-pack](https://git-scm.com/docs/gitprotocol-pack),
 [gitprotocol-http](https://git-scm.com/docs/gitprotocol-http).
 
-The pack protocol over file, ssh, and git:// is a stateful conversation on one
-connection. Smart HTTP turns it into a series of self-contained `POST`s. The
-HTTP spec states the server keeps no state between requests (so round-robin
-load balancing works and cookies must not be required), which means each
-negotiation request must repeat the client's wants and the haves already found
-to be common. A client tells smart from dumb by content type: a smart server
-answers `application/x-git-upload-pack-advertisement`, which a dumb server is
-forbidden to use.
-
-Dumb HTTP lets a client walk the object graph by fetching files from any
-static web server. It cannot compute a minimal pack, so it is rarely used for
-anything but bootstrapping.
+Over file, ssh, and git:// the protocol is a stateful conversation on one
+connection. Smart HTTP turns it into self-contained `POST`s: the server keeps
+no state between requests (so round-robin load balancing works), and each
+negotiation request repeats the wants and the haves already found common. A
+client tells smart from dumb by the `application/x-git-upload-pack-advertisement`
+content type, which a dumb server may not use.
 
 ## Framing: pkt-line and sideband
 
