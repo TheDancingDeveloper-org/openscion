@@ -66,16 +66,9 @@ impl Report {
             Vec::new()
         };
 
+        // Writing to a `String` cannot fail, so `write!` results are ignored.
         let mut out = format!("Fixture: {}\n\n| Scenario |", self.fixture);
         let mut rule = String::from("| --- |");
-        for backend in backends.iter().chain(&others) {
-            out.push_str(if others.contains(backend) && rule.matches('|').count() > backends.len() + 1 {
-                ""
-            } else {
-                ""
-            });
-            let _ = backend;
-        }
         for backend in &backends {
             let _ = write!(out, " {backend} |");
             rule.push_str(" ---: |");

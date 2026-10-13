@@ -56,7 +56,10 @@ pub fn run(scenario: Scenario, fixture: &Fixture, workdir: &Path) -> Result<Dura
                         "clone",
                     ],
                 )?;
-                git(&workdir.join("clone"), &["sparse-checkout", "set", directory])
+                git(
+                    &workdir.join("clone"),
+                    &["sparse-checkout", "set", directory],
+                )
             })
         }
     }

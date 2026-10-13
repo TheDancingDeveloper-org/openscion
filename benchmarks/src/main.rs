@@ -6,7 +6,7 @@ use std::process::ExitCode;
 
 use clap::Parser;
 use openscion_benchmarks::{
-    Error, Fixture, FixtureShape, Measurement, Report, Result, Scenario, git,
+    Error, Fixture, FixtureShape, Measurement, Report, Result, Scenario, git, openscion,
 };
 
 /// Benchmark OpenScion against git on a synthetic repository.
@@ -46,6 +46,9 @@ fn main() -> ExitCode {
     }
 }
 
+/// One backend's entry point: run a scenario once and time it.
+type Backend = fn(Scenario, &Fixture, &std::path::Path) -> Result<std::time::Duration>;
+
 fn run(args: &Args) -> Result<String> {
     if args.runs == 0 {
         return Err(Error::ZeroRuns);
@@ -66,16 +69,19 @@ fn run(args: &Args) -> Result<String> {
         ),
         measurements: Vec::new(),
     };
+    let backends: [(&'static str, Backend); 2] = [("git", git::run), ("openscion", openscion::run)];
     for scenario in Scenario::ALL {
-        let workdir = args.workdir.join(format!("git-{scenario}"));
-        let runs = (0..args.runs)
-            .map(|_| git::run(scenario, &fixture, &workdir))
-            .collect::<Result<Vec<_>>>()?;
-        report.measurements.push(Measurement {
-            backend: "git",
-            scenario,
-            runs,
-        });
+        for (backend, run) in backends {
+            let workdir = args.workdir.join(format!("{backend}-{scenario}"));
+            let runs = (0..args.runs)
+                .map(|_| run(scenario, &fixture, &workdir))
+                .collect::<Result<Vec<_>>>()?;
+            report.measurements.push(Measurement {
+                backend,
+                scenario,
+                runs,
+            });
+        }
     }
     report.to_markdown()
 }

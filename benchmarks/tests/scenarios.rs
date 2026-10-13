@@ -4,7 +4,7 @@
 
 use std::path::PathBuf;
 
-use openscion_benchmarks::{Error, Fixture, FixtureShape, Scenario, git};
+use openscion_benchmarks::{Error, Fixture, FixtureShape, Scenario, git, openscion};
 
 const SHAPE: FixtureShape = FixtureShape {
     directories: 2,
@@ -27,6 +27,69 @@ fn every_scenario_runs_against_git() {
             .join("clone/dir0000/file0000.txt")
             .exists()
     );
+}
+
+#[test]
+fn every_scenario_runs_against_openscion() {
+    let fixture = Fixture::generate(SHAPE, 3);
+    for scenario in Scenario::ALL {
+        openscion::run(
+            scenario,
+            &fixture,
+            &workdir(&format!("openscion-{scenario}")),
+        )
+        .unwrap();
+    }
+}
+
+#[test]
+fn both_backends_clone_the_fixture_byte_for_byte() {
+    let fixture = Fixture::generate(SHAPE, 3);
+    for (backend, run) in [
+        ("git", git::run as fn(_, _, _) -> _),
+        ("openscion", openscion::run),
+    ] {
+        let dir = workdir(&format!("{backend}-identical"));
+        run(Scenario::FullClone, &fixture, &dir).unwrap();
+        for file in fixture.files() {
+            assert_eq!(
+                std::fs::read(dir.join("clone").join(&file.path)).unwrap(),
+                file.contents,
+                "{backend}: {}",
+                file.path
+            );
+        }
+    }
+}
+
+#[test]
+fn both_backends_sparse_clone_only_the_first_directory() {
+    let fixture = Fixture::generate(SHAPE, 3);
+    for (backend, run) in [
+        ("git", git::run as fn(_, _, _) -> _),
+        ("openscion", openscion::run),
+    ] {
+        let dir = workdir(&format!("{backend}-sparse"));
+        run(Scenario::SparseClone, &fixture, &dir).unwrap();
+        assert!(dir.join("clone/dir0000/file0000.txt").exists(), "{backend}");
+        assert!(!dir.join("clone/dir0001").exists(), "{backend}");
+    }
+}
+
+#[test]
+fn a_fixture_without_directories_cannot_be_cloned_sparsely() {
+    let empty = Fixture::generate(
+        FixtureShape {
+            directories: 0,
+            ..SHAPE
+        },
+        3,
+    );
+    assert!(empty.first_directory().is_none());
+    let error = openscion::run(Scenario::SparseClone, &empty, &workdir("openscion-no-dir"));
+    assert!(matches!(error, Err(Error::NoDirectory)));
+    let error = git::run(Scenario::SparseClone, &empty, &workdir("git-no-dir"));
+    assert!(matches!(error, Err(Error::NoDirectory)));
 }
 
 #[test]
