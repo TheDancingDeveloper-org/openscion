@@ -1,26 +1,33 @@
 # Roadmap
 
-Replace this file with the real plan for the crate generated from this
-template, or delete it if the project does not need a public roadmap.
+The full sequence, with what each phase delivers, is in
+[`docs/specs/openscion-architecture.md`](docs/specs/openscion-architecture.md#delivery-phases).
+This page tracks where things stand.
 
-Keep it short and honest: what exists, what is next, and what is deliberately
-out of scope. A roadmap that lists everything is a roadmap nobody trusts.
+## Done
 
-## Shipped
-
-- module layout, crate-wide error type, and the public re-export surface
-- lint configuration in `[lints]`, enforced identically locally and in CI
-- CI: format, clippy, build, test, per-file coverage, rustdoc, MSRV, and
-  supply-chain checks
-- a manual release workflow that versions, tags, publishes to crates.io, and
-  creates a GitHub release with crate and TinyBus runtime/module assets
+- Workspace, lints, CI (format, clippy, build, test, per-file coverage,
+  rustdoc, MSRV, supply chain), and a tag-and-release workflow.
+- Draft specs: architecture, data model, and API.
 
 ## Next
 
-- the first real feature area, replacing the placeholder `greeting` module
-- module-level `README.md` and `docs/spec/` entries as modules grow
+1. **Core data model.** Object ids and hashing, paths, blobs, trees,
+   changesets, the in-memory log and refs, root-tree derivation, and the basic
+   read and write operations. Replaces the template `greeting` module.
+2. **Derived data and queries.** Generation numbers, skip lists, path history,
+   `Log`, `Diff`, `MergeBase`, `IsAncestor`, `ListTree`, `Stat`.
+3. **Server-side rebase and landing.** `Rebase`, `Land`, `Revert`, file-level
+   conflicts.
+
+## Later
+
+Persistent stores, the `scn` client and node daemon, git ingestion, network
+tiers, line-level blame and merge, virtual checkouts, read access control.
 
 ## Out Of Scope
 
-- anything that cannot be tested deterministically
-- convenience wrappers that hide the crate's error taxonomy from callers
+- Replacing git for ordinary repositories.
+- Offline-first operation and branch-heavy workflows.
+- Code review, code search, and CI themselves. OpenScion provides the APIs
+  they need.

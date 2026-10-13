@@ -1,0 +1,24 @@
+[package]
+name = "openscion-proto"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "The OpenScion protocol: object identifiers, changeset and ref payloads, and the protocol version."
+documentation = "https://docs.rs/openscion-proto"
+readme = "README.md"
+keywords = ["vcs", "source-control", "monorepo", "protocol"]
+categories = ["development-tools"]
+publish = false
+
+# Deliberately dependency-light: this is the crate every client, tier, and
+# third-party tool links to speak the API, so it must cost them almost nothing.
+# Nothing here may pull in a transport, an async runtime, an HTTP client, or a
+# native library. CI asserts it.
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[lints]
+workspace = true

@@ -1,5 +1,11 @@
 # Specifications
 
+| Spec | Status |
+| --- | --- |
+| [OpenScion architecture](openscion-architecture.md) | Draft |
+| [OpenScion data model](openscion-data-model.md) | Draft |
+| [OpenScion API](openscion-api.md) | Draft |
+
 Specifications define what the system must do before implementation details
 take over. Create one for behavior that changes a public API, crosses module
 boundaries, introduces a durable data format, or has meaningful operational

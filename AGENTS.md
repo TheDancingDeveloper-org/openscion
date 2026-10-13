@@ -4,67 +4,53 @@ This file is the single source of truth for how humans and coding agents work
 in this repository. `CLAUDE.md` is a symlink to this file, so every agent reads
 the same instructions.
 
-When you generate a new project from this template, keep this file and adapt
-the project-specific parts (crate name, module map, feature flags, commands).
-Delete guidance that no longer applies rather than leaving it to rot.
+OpenScion is a server-centric, content-addressed source control system for
+agent-scale monorepos. The design lives in [`docs/specs/`](docs/specs/README.md);
+read [`docs/specs/openscion-architecture.md`](docs/specs/openscion-architecture.md)
+before changing behavior, and background on the system it is modelled on in
+[`docs/research/scion.md`](docs/research/scion.md).
 
-## Template Checklist
+## Remaining Setup
 
-Do this once, in a single commit, before writing feature code:
+This repository was generated from a Rust module template. The renames are
+done; these items are still open:
 
-- [ ] Rename `crates/template` and `crates/template-bus` to the project's crate
-      names, and update `name` in each manifest plus the `template-bus` entry in
-      the root `[workspace.dependencies]`.
-- [ ] Set `description`, `keywords`, and `categories` in each manifest, and
-      `repository` in the root `[workspace.package]`.
-- [ ] Rename the crate references in `README.md`, both `src/lib.rs` files,
-      `crates/template/examples/`, and `crates/template/tests/` (search for
-      `template` and `template_bus`).
-- [ ] Replace the placeholder `greeting` module in both crates with the first
-      real feature area — payload types in the contract crate, behavior in the
-      module crate — keeping the `mod.rs` / `types.rs` / `test.rs` layout.
+- [ ] Replace the placeholder `greeting` module in both crates with the phase-1
+      data model — payload types in `openscion-proto`, behavior in `openscion` —
+      keeping the `mod.rs` / `types.rs` / `test.rs` layout.
 - [ ] Confirm `license` and `LICENSE` match the project's intended license.
 - [ ] Update the security contact in `SECURITY.md`.
-- [ ] Rename the TinyBus interface, object path, and member constants in
-      `crates/template-bus/src/names/`, and the matching `provides` / `methods`
-      declarations in `crates/template/src/tinybus_module/`, while keeping
-      `vendor/tinybus` pinned.
-- [ ] Reset `CONTRACT_VERSION` in `crates/template-bus/src/version/` for the new
-      contract.
-- [ ] Replace `ROADMAP.md` with the real plan, or delete it.
-- [ ] Rewrite the "Project Structure" section below to describe this workspace.
 
 ## Project Structure
 
 This is a Rust 2024 cargo workspace rooted at a virtual `Cargo.toml`. Every
 crate lives under `crates/`, one directory per package, each directory named for
-the package it holds. There is no root package: the crate that ships as the
-loadable module is `crates/template`, the same as any other member.
+the package it holds. There is no root package: the engine is
+`crates/openscion`, the same as any other member. Server, daemon, cache, and
+`scn` binaries arrive as their own crates in later phases.
 
 ```text
 Cargo.toml              # virtual workspace: members, [workspace.package],
                         # [workspace.dependencies], [workspace.lints]
 crates/
-├── template-bus/       # the wire contract: what crosses the bus, nothing else
-│   ├── README.md       # why the contract is its own crate
+├── openscion-proto/    # the protocol: what crosses a process boundary
+│   ├── README.md       # why the protocol is its own crate
 │   └── src/
 │       ├── lib.rs      # crate docs + the entire public re-export surface
-│       ├── names/      # interface, object path, one constant per member
-│       ├── version/    # contract version and the host bind rule
+│       ├── version/    # protocol version and the client bind rule
 │       └── <family>/   # one directory per payload family
-└── template/           # the module: behavior, adapter, and the cdylib
+└── openscion/          # the engine: behavior, stores, derived data
     ├── src/
-    │   ├── lib.rs      # crate docs + public surface, re-exporting the contract
+    │   ├── lib.rs      # crate docs + public surface, re-exporting the protocol
     │   ├── error/mod.rs      # crate-wide `Error` and `Result<T>`
-    │   ├── tinybus_module/   # TinyBus interface, ABI exports, integration tests
     │   └── <feature>/        # one directory per feature area
     │       ├── mod.rs        # module docs, wiring, smallest useful public API
     │       ├── types.rs      # substantial type definitions
     │       └── test.rs       # module-local unit tests
     ├── tests/          # integration tests against the public API only
     └── examples/       # runnable, compiled-in-CI usage examples
-vendor/tinybus/         # pinned TinyBus host types and module SDK
 docs/
+├── research/           # source material the design draws on
 ├── specs/              # behavior and architecture specifications
 ├── plans/              # test-first implementation plans
 └── adr/                # immutable architecture decision records
@@ -72,19 +58,20 @@ docs/
 
 ### The two-crate split
 
-`crates/template-bus` holds every type that crosses the bus and the names of the
-members that carry them. It has no transport, no runtime, and no behavior, and
-CI asserts it stays that way. A host that only makes calls depends on it alone.
+`crates/openscion-proto` holds every payload type that crosses a process
+boundary and the protocol version. It has no transport, no runtime, and no
+behavior, and CI asserts it stays that way. A client that only makes calls
+depends on it alone.
 
-`crates/template` depends on it and re-exports all of it, so
-`template::GreetRequest` and `template_bus::GreetRequest` are the *same* type
-rather than structural twins. That direction is load-bearing: a parallel set of
-payload types for hosts would mean a conversion at every call site that nothing
-checks.
+`crates/openscion` depends on it and re-exports all of it, so
+`openscion::GreetRequest` and `openscion_proto::GreetRequest` are the *same*
+type rather than structural twins. That direction is load-bearing: a parallel
+set of payload types for clients would mean a conversion at every call site
+that nothing checks.
 
 The rule for deciding where something goes: a payload type describes what a
-frame carries and belongs in the contract; anything that answers a frame, holds
-a connection, or touches an engine belongs in the module crate.
+request or response carries and belongs in the protocol; anything that answers
+a request, hashes, validates, stores, or computes belongs in the engine.
 
 Add a crate by creating `crates/<name>/` — `members = ["crates/*"]` picks it up
 by existing. Inherit `version`, `edition`, `rust-version`, `license`, and
@@ -114,7 +101,7 @@ broad ones.
 
 Keep public exports centralized in each crate's `src/lib.rs` so downstream users
 have one predictable surface. Put shared error variants in
-`crates/template/src/error/mod.rs` and return the crate-wide `Result<T>` from
+`crates/openscion/src/error/mod.rs` and return the crate-wide `Result<T>` from
 fallible public APIs.
 
 ## Build And Test
@@ -133,8 +120,8 @@ Supporting commands:
 
 - `cargo fmt --all` — format before committing.
 - `cargo test <filter>` — run a focused subset while iterating.
-- `cargo test -p template-bus` — run one crate's suite.
-- `cargo run -p template --example basic` — run the bundled example.
+- `cargo test -p openscion-proto` — run one crate's suite.
+- `cargo run -p openscion --example basic` — run the bundled example.
 - `cargo doc --no-deps --all-features` — build the rustdoc CI also builds with
   `RUSTDOCFLAGS="-D warnings"`.
 - `cargo test --doc` — run doctests alone when editing documentation examples.
@@ -147,6 +134,10 @@ root cause, or stop and report the blocker.
 Use standard `rustfmt` output and Rust 2024 idioms. Do not hand-format around
 `rustfmt`, and do not add `#[rustfmt::skip]` without a comment explaining why.
 
+- Write the project name as **OpenScion** in prose, titles, and doc comments.
+  Every identifier is lowercase `openscion`: crate, binary, file, directory,
+  path, config key, and error or log tag (`openscion-proto`,
+  `openscion-server`, `docs/specs/openscion-api.md`).
 - `snake_case` for modules, files, functions, methods, fields, and locals.
 - `PascalCase` for types, traits, and enum variants; `SCREAMING_SNAKE_CASE` for
   constants and statics.
@@ -185,7 +176,7 @@ add one:
 - gate anything optional behind a Cargo feature, documented in `Cargo.toml`;
 - declare it once in the root `[workspace.dependencies]` when more than one
   crate needs it, and take it with `{ workspace = true }`;
-- never add one to `crates/template-bus` that pulls in a transport, an async
+- never add one to `crates/openscion-proto` that pulls in a transport, an async
   runtime, an HTTP client, or a native library — CI fails the build if you do;
 - leave a comment above the entry explaining *why* the crate is needed and what
   uses it — see the existing entries for the expected tone;
@@ -194,21 +185,6 @@ add one:
 Keep `Cargo.lock` committed; this workspace ships a single lockfile so CI and
 releases are reproducible.
 
-### Vendored dependencies
-
-TinyBus is registered as the `vendor/tinybus` git submodule and pinned by its
-gitlink. It supplies the host types and module-side SDK required to build this
-crate's `cdylib`. Initialize it after cloning with:
-
-```sh
-git submodule update --init --recursive
-```
-
-Do not edit vendored code from the parent repository. Make TinyBus changes in
-its own repository, push them there, then update this repository's gitlink in a
-separate commit. Keep the exact path dependencies and minimal features unless a
-new module capability requires more.
-
 ## Testing
 
 - Module-local unit tests live in `crates/<crate>/src/<feature>/test.rs` and may
@@ -216,7 +192,7 @@ new module capability requires more.
 - Integration tests live in `crates/<crate>/tests/` and exercise only the public
   API — they are the regression suite for the crate's contract.
 - Payload types pin their serde representation in a unit test. That
-  representation is the wire form: a host and a module that disagree about a
+  representation is the wire form: a client and a server that disagree about a
   field name fail at runtime with a decode error.
 - Use descriptive, behavioral test names: `rejects_an_empty_name`, not
   `test_greet_2`.
@@ -295,9 +271,8 @@ Releases run from `.github/workflows/release.yml` via a manual
 an interrupted release after its version commit and tag exist. The workflow
 re-runs the full validation suite, computes the next version, updates
 the root `[workspace.package]` version and `Cargo.lock`, commits and tags
-`vX.Y.Z`, builds `crates/template` as a TinyBus module for every supported
-platform, pushes, and creates an immutable GitHub release with installable
-native packages.
+`vX.Y.Z`, pushes, and creates a GitHub release. No binaries are attached yet;
+the server, daemon, and `scn` packages arrive with the phases that build them.
 
 Consequently:
 
@@ -307,8 +282,8 @@ Consequently:
 - Follow semantic versioning. Any change to the public surface that is not
   purely additive is a breaking change and needs a major bump (pre-1.0: a minor
   bump).
-- The module must be packageable for every release target — `main` should
-  always be green.
+- `main` should always be green: a release re-runs the full validation suite
+  and refuses to tag a red tree.
 
 ## Agent Working Agreement
 

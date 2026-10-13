@@ -10,11 +10,14 @@ where it cannot drift.
 ```text
 docs/
 ├── README.md      # this index
+├── research/      # source material the design draws on
 ├── specs/         # behavior and architecture specifications
 ├── plans/         # implementation plans derived from approved specs
 └── adr/           # architecture decision records, numbered and immutable
 ```
 
+- **`research/`** — notes on prior art, starting with
+  [`research/scion.md`](research/scion.md). Source material, not requirements.
 - **[`specs/`](specs/README.md)** — one file per feature, module, or subsystem,
   describing its behavior, public surface, invariants, and acceptance criteria.
 - **[`plans/`](plans/README.md)** — implementation-ordered, test-first steps for
@@ -28,10 +31,9 @@ docs/
 Complex modules also carry a module-level `README.md` inside `src/<module>/`
 covering their design, public surface, and important constraints.
 
-The current module-release contract is in
-[`specs/tinybus-module-release.md`](specs/tinybus-module-release.md), with its
-implementation sequence in
-[`plans/tinybus-module-release.md`](plans/tinybus-module-release.md).
+Start with [`specs/openscion-architecture.md`](specs/openscion-architecture.md),
+which links the [data model](specs/openscion-data-model.md) and the
+[API](specs/openscion-api.md).
 
 ## Conventions
 
