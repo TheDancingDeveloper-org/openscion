@@ -261,17 +261,14 @@ A ref maps a name such as `refs/heads/main` to an object id.
 
 ### Files backend
 
-- **Loose refs** are one file per ref under `.git/refs/`, holding the id as
-  hex.
-- **`packed-refs`** is a single sorted text file with one `<id> <name>` line
-  per ref, where an annotated tag can be followed by a `^<id>` line holding
-  its peeled target. `git pack-refs` moves loose refs into it. A loose ref
-  shadows the packed entry of the same name.
-- **Symbolic refs** hold `ref: <other ref>` instead of an id. `HEAD` is usually
-  symbolic (`ref: refs/heads/main`); a detached `HEAD` holds an id.
-- **Reflogs** live under `.git/logs/<refname>`, one line per update with the old
-  id, new id, committer, timestamp, and message. They expire after 90 days by
-  default (`gc.reflogExpire`).
+- **Loose refs**: one file per ref under `.git/refs/`, holding the id as hex.
+- **`packed-refs`**: one sorted text file with an `<id> <name>` line per ref
+  (an annotated tag may be followed by a `^<id>` peeled line). `git pack-refs`
+  fills it; a loose ref shadows a packed one of the same name.
+- **Symbolic refs** hold `ref: <other ref>`. `HEAD` is usually symbolic
+  (`ref: refs/heads/main`); a detached `HEAD` holds an id.
+- **Reflogs** under `.git/logs/<refname>` log each update (old id, new id,
+  committer, time, message), expiring after 90 days (`gc.reflogExpire`).
 
 **Locking and atomicity.** To update a ref, git creates `<ref>.lock` with an
 exclusive create, which fails if another writer holds the lock, writes the new
@@ -281,11 +278,10 @@ packed ref also requires `packed-refs.lock` and a rewrite of the entire
 --atomic`) locks every ref first and only then commits, so concurrent writers
 are excluded; the commit itself is still a series of separate renames.
 
-**Scaling:** loose refs cost one inode each, and the
-[reftable documentation](https://git-scm.com/docs/reftable) measures the
-problem with packed-refs directly: the Android repository had 866k refs and a
-62 MB packed-refs file that needs a linear scan per lookup, and every
-transaction touching packed refs rewrites the whole file.
+**Scaling:** loose refs cost an inode each. The
+[reftable documentation](https://git-scm.com/docs/reftable) cites Android's
+866k refs in a 62 MB packed-refs file that needs a linear scan per lookup and a
+full rewrite for any transaction that touches it.
 
 ### Reftable
 
@@ -365,16 +361,13 @@ Sparse checkout limits the working tree, not the object store: a full clone
 still downloads every object unless combined with partial clone.
 
 **Worktrees.** `git worktree add` creates extra working trees sharing one object
-store and ref namespace. Each linked worktree has a private directory under
-`$GIT_DIR/worktrees/<id>/` holding its own `HEAD`, index, and optional
-`config.worktree`, and its `.git` is a file pointing back there
-([git-worktree](https://git-scm.com/docs/git-worktree);
-[gitrepository-layout](https://git-scm.com/docs/gitrepository-layout)).
+store and ref namespace. Each has a private `$GIT_DIR/worktrees/<id>/` with its
+own `HEAD`, index, and optional `config.worktree`, and its `.git` is a file
+pointing there ([git-worktree](https://git-scm.com/docs/git-worktree)).
 
-**Submodules.** A submodule is a gitlink tree entry (mode `160000`) whose id is
-a commit in another repository. The `.gitmodules` file maps the path to a URL.
-The superproject records only the pinned commit; fetching, updating, and
-pushing the submodule are separate operations on a separate repository.
+**Submodules.** A submodule is a gitlink entry (mode `160000`) naming a commit in
+another repository; `.gitmodules` maps its path to a URL. The superproject pins
+only that commit; fetching and updating the submodule are separate operations.
 
 ## History algorithms
 
@@ -429,9 +422,8 @@ are absent or overflowed.
 
 ### Diff and rename detection
 
-Git diffs two trees by walking them in parallel and skipping any subtree whose
-id is unchanged, so a diff costs the changed portion of the trees. Renames are
-then inferred: exact renames by matching blob ids, and inexact renames by
+Git diffs two trees in parallel, skipping any subtree whose id is unchanged, so
+a diff costs the changed portion of the trees. Renames are then inferred: exact renames by matching blob ids, and inexact renames by
 scoring content similarity between unmatched deleted and added files. The
 exhaustive pairwise step is capped by `diff.renameLimit` (default 1000) and, for
 merges, `merge.renameLimit` (default 7000)
