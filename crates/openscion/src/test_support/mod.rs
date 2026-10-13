@@ -57,3 +57,19 @@ pub(crate) fn unreachable_server() -> String {
     drop(listener);
     format!("http://{addr}")
 }
+
+/// A fresh, empty scratch directory unique to this test.
+pub(crate) fn scratch(name: &str) -> std::path::PathBuf {
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    static NEXT: AtomicUsize = AtomicUsize::new(0);
+    let dir = std::env::temp_dir().join(format!(
+        "openscion-test-{}-{name}-{}",
+        std::process::id(),
+        NEXT.fetch_add(1, Ordering::Relaxed)
+    ));
+    if dir.exists() {
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+    std::fs::create_dir_all(&dir).unwrap();
+    dir
+}

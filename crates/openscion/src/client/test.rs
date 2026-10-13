@@ -62,3 +62,30 @@ fn a_server_on_another_major_protocol_is_rejected() {
         )
     );
 }
+
+#[test]
+fn an_error_body_becomes_a_server_error() {
+    let base = canned_server(409, r#"{"code":"RefConflict","message":"lost"}"#);
+    let error = ServerClient::new(&base).get_ref("main").unwrap_err();
+    assert!(matches!(
+        &error,
+        Error::Server { status: 409, code, message, .. } if code == "RefConflict" && message == "lost"
+    ));
+    assert_eq!(
+        error.to_string(),
+        format!("{base}/v1/refs/main answered 409 RefConflict: lost")
+    );
+}
+
+#[test]
+fn a_fetch_from_an_unreachable_server_is_a_request_error() {
+    let client = ServerClient::new(unreachable_server());
+    assert!(matches!(
+        client.fetch_objects(vec![]),
+        Err(Error::Request { .. })
+    ));
+    assert!(matches!(
+        client.upload_blobs(&[]),
+        Err(Error::Request { .. })
+    ));
+}

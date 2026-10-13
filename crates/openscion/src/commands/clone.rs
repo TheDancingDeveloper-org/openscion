@@ -112,7 +112,7 @@ fn unique(ids: impl Iterator<Item = ObjectId>) -> Vec<ObjectId> {
 
 /// Decodes a fetched frame stream, checking that it holds exactly the
 /// requested objects and that each one hashes to its id.
-fn verified<'a>(
+pub(super) fn verified<'a>(
     bytes: &'a [u8],
     kind: ObjectKind,
     requested: &[ObjectId],
