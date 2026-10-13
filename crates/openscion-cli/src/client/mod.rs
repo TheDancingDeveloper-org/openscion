@@ -54,14 +54,13 @@ impl ServerClient {
             url: url.clone(),
             message: error.to_string(),
         })?;
-        let info: ServerInfo =
-            response
-                .body_mut()
-                .read_json()
-                .map_err(|error| Error::Decode {
-                    url: url.clone(),
-                    message: error.to_string(),
-                })?;
+        let info: ServerInfo = response
+            .body_mut()
+            .read_json()
+            .map_err(|error| Error::Decode {
+                url: url.clone(),
+                message: error.to_string(),
+            })?;
         if !is_compatible(info.protocol_version) {
             return Err(Error::IncompatibleProtocol {
                 server: info.protocol_version,

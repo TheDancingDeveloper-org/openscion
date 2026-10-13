@@ -559,6 +559,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "openscion-cli"
+version = "0.2.1"
+dependencies = [
+ "clap",
+ "openscion",
+ "openscion-server",
+ "thiserror",
+ "tokio",
+ "ureq",
+]
+
+[[package]]
 name = "openscion-proto"
 version = "0.2.1"
 dependencies = [

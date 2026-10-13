@@ -30,6 +30,8 @@
 mod cli;
 mod client;
 mod error;
+#[cfg(test)]
+mod test_support;
 
 pub use cli::{Cli, Command, DEFAULT_SERVER, run};
 pub use client::ServerClient;
