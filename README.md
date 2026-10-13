@@ -14,7 +14,7 @@ OpenScion — an in-memory server and the `opnscn` client — against git on
 synthetic repositories of 4 KiB files (`cargo run -p openscion-benchmarks
 --release`):
 
-![OpenScion vs git on synthetic repositories: median times to import a repository, clone everything, commit one changed file, and clone one directory, on 1,000 and 10,000 files](docs/images/openscion-vs-git.svg)
+![OpenScion vs git on synthetic repositories: median times to import a repository, clone everything, commit one changed file, and clone one directory, on 1,000 and 10,000 files](docs/images/opnscn-vs-git.svg)
 
 These are early numbers and the comparison is not like for like: the
 server keeps everything in memory without compression or fsync, and runs in
