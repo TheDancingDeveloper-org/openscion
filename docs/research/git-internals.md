@@ -151,21 +151,14 @@ touches every object in the repository.
 
 ### Pack index (`.idx` v2) and reverse index (`.rev`)
 
-Each pack has an index for lookup by id:
-
-1. magic `\377tOc` and version 2;
-2. a 256-entry **fan-out** table: entry *i* is the number of ids whose first
-   byte is at most *i*, so a lookup binary-searches one bucket;
-3. the sorted ids, then a CRC32 per object;
-4. 4-byte offsets, with the high bit redirecting to an 8-byte offset table for
-   packs over 2 GiB;
-5. the pack checksum and the index checksum.
-
-A `.rev` file adds the inverse mapping, from pack position (offset order) back
-to index position, which bitmaps and size queries need.
-
-**Scaling:** lookup is O(log n) within one pack, but a repository with *p*
-packs costs O(p log n) per miss, which is why pack count must be kept down.
+Each pack has an index for lookup by id: magic `\377tOc` and version 2; a
+256-entry **fan-out** table (entry *i* counts ids whose first byte is at most
+*i*, so a lookup binary-searches one bucket); the sorted ids; a CRC32 per
+object; 4-byte offsets whose high bit redirects to an 8-byte table for packs
+over 2 GiB; then the pack and index checksums. A `.rev` file adds the inverse
+mapping, from offset order back to index position, which bitmaps need.
+**Scaling:** lookup is O(log n) within one pack, but *p* packs cost
+O(p log n) per miss, which is why pack count must be kept down.
 
 ### Multi-pack index (MIDX)
 
