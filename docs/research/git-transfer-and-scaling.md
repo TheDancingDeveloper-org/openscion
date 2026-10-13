@@ -266,14 +266,11 @@ blobs). When a lookup misses, git fetches the object from a promisor remote
 and are tried in config order). The design doc lists the known limitations:
 
 - Dynamic fetches mostly happen **one object at a time**, because most
-  algorithms need each object before continuing; this adds round trips and
-  repeated authentication. `checkout` batches the blobs it needs, and
-  `rev-list --missing=print` lets tools prefetch in bulk.
-- The lazy fetch reuses the fetch machinery, so it also returns objects
-  referenced by the requested ones, and it does no negotiation.
-- Dynamic fetch uses protocol v0, so each one receives the full ref
-  advertisement.
-- Promisor packs are repacked separately from normal packs.
+  algorithms need each object before continuing, adding round trips and
+  repeated authentication. `checkout` batches the blobs it needs.
+- A lazy fetch reuses fetch without negotiation, so it also returns objects
+  referenced by the requested ones; it uses protocol v0, so each one receives
+  the full ref advertisement.
 
 Derrick Stolee's [guide](https://github.blog/open-source/git/get-up-to-speed-with-partial-clone-and-shallow-clone/)
 (GitHub, 2020) gives the practical consequences. Blobless clones are the most
