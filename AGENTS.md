@@ -23,32 +23,33 @@ done; these items are still open:
 
 ## Project Structure
 
-This is a Rust 2024 cargo workspace rooted at a virtual `Cargo.toml`. Every
-crate lives under `crates/`, one directory per package, each directory named for
-the package it holds. There is no root package: the engine is
-`crates/openscion-core`, the same as any other member. Server, daemon, cache, and
-`scn` binaries arrive as their own crates in later phases.
+This is a Rust 2024 cargo workspace rooted at a virtual `Cargo.toml`, plus a
+Next.js web app. Every Rust crate lives under `crates/`, one directory per
+package, each directory named for the package it holds; `benchmarks/` is the one
+workspace member outside it. There is no root package.
 
 ```text
 Cargo.toml              # virtual workspace: members, [workspace.package],
                         # [workspace.dependencies], [workspace.lints]
 crates/
 ├── openscion-proto/    # the protocol: what crosses a process boundary
-│   ├── README.md       # why the protocol is its own crate
 │   └── src/
-│       ├── lib.rs      # crate docs + the entire public re-export surface
 │       ├── version/    # protocol version and the client bind rule
 │       └── <family>/   # one directory per payload family
-└── openscion/          # the engine: behavior, stores, derived data
-    ├── src/
-    │   ├── lib.rs      # crate docs + public surface, re-exporting the protocol
-    │   ├── error/mod.rs      # crate-wide `Error` and `Result<T>`
-    │   └── <feature>/        # one directory per feature area
-    │       ├── mod.rs        # module docs, wiring, smallest useful public API
-    │       ├── types.rs      # substantial type definitions
-    │       └── test.rs       # module-local unit tests
-    ├── tests/          # integration tests against the public API only
-    └── examples/       # runnable, compiled-in-CI usage examples
+├── openscion-core/     # the engine: data model, stores, derived data
+│   ├── src/
+│   │   ├── lib.rs      # crate docs + public surface, re-exporting the protocol
+│   │   ├── error/mod.rs      # crate-wide `Error` and `Result<T>`
+│   │   └── <feature>/        # one directory per feature area
+│   │       ├── mod.rs        # module docs, wiring, smallest useful public API
+│   │       ├── types.rs      # substantial type definitions
+│   │       └── test.rs       # module-local unit tests
+│   ├── tests/          # integration tests against the public API only
+│   └── examples/       # runnable, compiled-in-CI usage examples
+├── openscion-server/   # `openscion-server`: the HTTP API over the engine
+└── openscion/          # `scn`, the CLI — published to crates.io as `openscion`
+benchmarks/             # `openscion-bench`: OpenScion vs git on synthetic repos
+apps/web/               # the web GUI: Next.js + shadcn/ui, talks to the server API
 docs/
 ├── research/           # source material the design draws on
 ├── specs/              # behavior and architecture specifications
@@ -56,7 +57,11 @@ docs/
 └── adr/                # immutable architecture decision records
 ```
 
-### The two-crate split
+`openscion-proto`, `openscion-core`, and `openscion` are published to
+crates.io by the release workflow; `openscion-server` and the benchmarks are
+not (`publish = false`).
+
+### The protocol and the engine
 
 `crates/openscion-proto` holds every payload type that crosses a process
 boundary and the protocol version. It has no transport, no runtime, and no

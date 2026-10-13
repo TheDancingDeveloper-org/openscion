@@ -6,10 +6,10 @@ on laptops. It follows the design Anthropic described for its internal system,
 Scion, in
 [*Redesigning source control*](https://www.anthropic.com/engineering/redesigning-source-control).
 
-> **Status: design phase.** The specs are drafted and the workspace is set up.
-> No source control behavior is implemented yet. The engine crate still holds
-> the placeholder `greeting` module from the project template, and phase 1
-> replaces it.
+> **Status: design phase.** The specs are drafted, and a server, a CLI
+> (`scn`), a web GUI, and a git benchmark harness are scaffolded. No source
+> control behavior is implemented yet: the server answers discovery requests
+> only, and phase 1 adds the core data model.
 
 ## Why
 
@@ -66,6 +66,7 @@ single node works without any cloud services.
 | [Data model](docs/specs/openscion-data-model.md) | object ids, paths, blobs, trees, changesets, the log, refs, derived data |
 | [API](docs/specs/openscion-api.md) | operations, fetch protocol, rebase and landing, access control, errors |
 | [Background: Scion](docs/research/scion.md) | notes on the system OpenScion is modelled on |
+| [Background: git, GitHub, GitLab](docs/research/README.md) | how git stores and moves data, and how the two largest forges host it |
 | [Roadmap](ROADMAP.md) | what exists, what is next, what is out of scope |
 | [`AGENTS.md`](AGENTS.md) | repository guidelines for humans and coding agents |
 
@@ -74,9 +75,13 @@ single node works without any cloud services.
 ```text
 crates/
 ├── openscion-proto/   # the protocol: payload types and the protocol version
-└── openscion/         # the engine: data model, stores, derived data, rebase
+├── openscion-core/    # the engine: data model, stores, derived data, rebase
+├── openscion-server/  # openscion-server: the HTTP API over the engine
+└── openscion/         # scn, the command-line client (crates.io: openscion)
+benchmarks/            # openscion-bench: OpenScion vs git on synthetic repos
+apps/web/              # the web GUI (Next.js + shadcn/ui)
 docs/
-├── research/          # source material
+├── research/          # source material: Scion, git, GitHub, GitLab
 ├── specs/             # what to build and why
 ├── plans/             # test-first implementation plans
 └── adr/               # architecture decision records
@@ -84,9 +89,20 @@ docs/
 
 `openscion-proto` holds every type that crosses a process boundary. It has no
 transport, runtime, or behavior, so any tool can depend on it to speak the API.
-`openscion` depends on it and re-exports it, so both crates name the same
-types. The server, daemon, cache, and `scn` binaries will be added as their own
-crates in the phases that introduce them.
+`openscion-core` depends on it and re-exports it, so both crates name the same
+types. The server, the CLI, and the GUI all speak that one API.
+
+## Quick start
+
+```sh
+cargo run -p openscion-server                 # serves http://127.0.0.1:7878
+cargo run -p openscion -- server-info         # scn: ask the server who it is
+cd apps/web && pnpm install && pnpm dev       # GUI on http://localhost:3000
+cargo run -p openscion-benchmarks --release   # time the scenarios against git
+```
+
+Install the client from crates.io with `cargo install openscion`, which
+provides the `scn` binary.
 
 ## Development
 
@@ -113,9 +129,10 @@ cargo install cargo-llvm-cov         # once
 
 Run the **Release** workflow from the Actions tab and pick a `patch`, `minor`,
 or `major` bump. The workflow re-validates the workspace, bumps the shared
-`[workspace.package]` version, tags it, and creates a GitHub release. No
-binaries are attached yet. Do not edit the version in the root `Cargo.toml` by
-hand.
+`[workspace.package]` version, tags it, publishes `openscion-proto`,
+`openscion-core`, and `openscion` to crates.io (using the
+`CARGO_REGISTRY_TOKEN` secret), and creates a GitHub release. Do not edit the
+version in the root `Cargo.toml` by hand.
 
 ## Contributing
 

@@ -160,15 +160,23 @@ cross-record transaction, which is what lets the metadata store shard.
 - `crates/openscion-proto` holds every payload type that crosses a process
   boundary — object ids, changesets, refs, requests, responses, and the
   protocol version — with no transport, no runtime, and no behavior. `scn`, the
-  daemon, the cache, and any third-party tool depend on it to speak the API.
-- `crates/openscion-core` holds the engine: hashing, the data model, the log and
-  ref stores behind their ports, derived data, and rebase. It is a plain Rust
-  library, usable in-process with no transport, and re-exports the protocol
-  crate so both name the same types.
-- Server, daemon, cache, and `scn` binaries arrive as their own crates in the
-  phases that introduce them, each a thin layer over the engine and the
-  protocol crate. Every hop carries the same `openscion-proto` payloads, so the
-  RPC contract is identical at every tier.
+  daemon, the cache, the GUI's backend calls, and any third-party tool speak
+  it.
+- `crates/openscion-core` holds the engine: hashing, the data model, the log
+  and ref stores behind their ports, derived data, and rebase. It is a plain
+  Rust library, usable in-process with no transport, and re-exports the
+  protocol crate so both name the same types.
+- `crates/openscion-server` serves the engine as an HTTP JSON API. HTTP is the
+  initial transport because the GUI and most tools already speak it; the
+  open question below is whether tier-to-tier traffic keeps it.
+- `crates/openscion` is `scn`, the CLI, published to crates.io as `openscion`.
+- `apps/web` is the web GUI (Next.js and shadcn/ui). It renders on the server
+  side and calls `openscion-server` like any other client.
+- `benchmarks/` times the same scenarios against OpenScion and git on
+  deterministic synthetic repositories.
+- The daemon and the cache arrive as their own crates in the phases that
+  introduce them. Every hop carries the same `openscion-proto` payloads, so
+  the API contract is identical at every tier.
 
 ## Adjacent systems
 
