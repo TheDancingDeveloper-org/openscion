@@ -53,4 +53,6 @@ pub use greeting::greet;
 // publishes. A client may depend on `openscion-proto` directly and get exactly
 // these types; nothing here redefines them.
 pub use openscion_proto;
-pub use openscion_proto::{GreetRequest, GreetResponse, PROTOCOL_VERSION, is_compatible, version};
+pub use openscion_proto::{
+    GreetRequest, GreetResponse, PROTOCOL_VERSION, ServerInfo, is_compatible, server, version,
+};
