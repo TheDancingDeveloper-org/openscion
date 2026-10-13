@@ -1,6 +1,6 @@
 //! The canonical tree encoding.
 
-use openscion_proto::{EntryKind, ObjectId, TreeEntry};
+use openscion_proto::{EntryKind, ObjectId, RepoPath, TreeEntry};
 
 use crate::{Error, Result};
 
@@ -75,7 +75,7 @@ pub fn decode_tree(mut bytes: &[u8]) -> Result<Vec<TreeEntry>> {
             .ok_or_else(|| malformed("unterminated name"))?;
         let name =
             std::str::from_utf8(&rest[..nul]).map_err(|_| malformed("name is not UTF-8"))?;
-        if crate::component_violation(name).is_some() {
+        if name.contains('/') || RepoPath::new(name).is_err() {
             return Err(malformed("invalid entry name"));
         }
         if entries.last().is_some_and(|last| last.name.as_str() >= name) {
