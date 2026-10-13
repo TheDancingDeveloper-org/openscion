@@ -7,14 +7,68 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
-use openscion_core::{Error, greet};
+use openscion_core::{
+    Change, CreateChangeset, EntryKind, Error, FixedClock, FrameWriter, ObjectKind, RepoPath,
+    Repository, UpdateRef, decode_frames, object_id, openscion_proto,
+};
 
 #[test]
-fn greeting_is_available_to_consumers() {
-    assert_eq!(greet("Rust").unwrap(), "Hello, Rust!");
+fn the_protocol_types_are_the_same_types() {
+    let id: openscion_proto::ObjectId = object_id(ObjectKind::Blob, b"x");
+    let _: openscion_core::ObjectId = id;
+}
+
+#[test]
+fn a_consumer_can_commit_and_move_a_ref() {
+    let mut repo = Repository::with_clock(FixedClock(5));
+    let blob = repo.put_blob(b"hello");
+    let info = repo
+        .create_changeset(CreateChangeset::new(
+            vec![],
+            vec![Change::Upsert {
+                path: RepoPath::new("hello.txt").unwrap(),
+                kind: EntryKind::File,
+                blob,
+            }],
+            "test",
+            "init",
+        ))
+        .unwrap();
+    let main = repo
+        .update_ref("main", UpdateRef::new(None, info.id))
+        .unwrap();
+    assert_eq!(main.target, info.id);
+    assert_eq!(repo.tree(info.root_tree).unwrap()[0].id, blob);
+}
+
+#[test]
+fn ids_are_deterministic_under_a_fixed_clock() {
+    let build = || {
+        let mut repo = Repository::with_clock(FixedClock(5));
+        let blob = repo.put_blob(b"same");
+        repo.create_changeset(CreateChangeset::new(
+            vec![],
+            vec![Change::Upsert {
+                path: RepoPath::new("f").unwrap(),
+                kind: EntryKind::File,
+                blob,
+            }],
+            "test",
+            "init",
+        ))
+        .unwrap()
+    };
+    assert_eq!(build(), build());
 }
 
 #[test]
 fn errors_are_available_to_consumers() {
-    assert_eq!(greet("").unwrap_err(), Error::EmptyName);
+    let repo = Repository::new();
+    assert_eq!(
+        repo.get_ref("main").unwrap_err(),
+        Error::NoSuchRef("main".to_owned())
+    );
+    let mut frames = FrameWriter::new();
+    frames.push(object_id(ObjectKind::Blob, b"x"), b"x");
+    assert_eq!(decode_frames(&frames.finish()).unwrap().len(), 1);
 }
