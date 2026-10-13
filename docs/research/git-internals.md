@@ -176,17 +176,12 @@ file.
 
 A [`.bitmap`](https://git-scm.com/docs/bitmap-format) file stores, for a
 selection of commits, the set of objects reachable from that commit, as a bit
-per object in pack (or MIDX pseudo-pack) order.
-
-- Bitmaps are EWAH-compressed (run-length words plus literals), compatible
-  with JGit.
-- Four type bitmaps mark which positions are commits, trees, blobs, and tags.
-- Each commit's bitmap may be stored XORed against an earlier one (up to 160
-  entries back) to save space.
-- Optional sections: a name-hash cache for delta heuristics, a commit lookup
-  table, and pseudo-merge bitmaps that union the reachable sets of many refs.
-
-Bitmaps turn "which objects does the client lack" from a graph walk into set
+per object in pack (or MIDX pseudo-pack) order. Bitmaps are EWAH-compressed
+(run-length words plus literals, compatible with JGit); four type bitmaps mark
+commits, trees, blobs, and tags; each commit's bitmap may be XORed against one
+up to 160 entries earlier. Optional sections add a name-hash cache for delta
+heuristics, a commit lookup table, and pseudo-merge bitmaps that union the
+reachable sets of many refs. Bitmaps turn "which objects does the client lack" from a graph walk into set
 operations, which is what makes serving clones and fetches tractable on large
 hosted repositories. **Scaling:** a bitmap covers a fixed pack or MIDX, so it
 goes stale as new packs arrive and must be rebuilt by a repack that covers all
