@@ -1,60 +1,129 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="468" viewBox="0 0 1000 468" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif">
-<rect width="1000" height="468" rx="12" fill="#ffffff"/>
-<text x="32" y="44" font-size="22" font-weight="700" fill="#1f2328">OpenScion MVP vs git</text>
-<text x="32" y="70" font-size="14" fill="#59636e">Median wall-clock time, lower is better · bars scaled within each scenario</text>
-<rect x="738" y="34" width="14" height="14" rx="3" fill="#8b949e"/>
-<text x="758" y="46" font-size="13" fill="#1f2328">git</text>
-<rect x="828" y="34" width="14" height="14" rx="3" fill="#6d4aff"/>
-<text x="848" y="46" font-size="13" fill="#1f2328">OpenScion (scn)</text>
-<text x="32.0" y="102" font-size="15" font-weight="600" fill="#1f2328">1,000 files × 4 KiB</text>
-<text x="32.0" y="140" font-size="13" fill="#1f2328">import</text>
-<rect x="150.0" y="116" width="180.0" height="18" rx="3" fill="#8b949e"/>
-<text x="336.0" y="129" font-size="12" fill="#1f2328">425 ms</text>
-<rect x="150.0" y="140" width="9.3" height="18" rx="3" fill="#6d4aff"/>
-<text x="165.3" y="153" font-size="12" fill="#1f2328">21.9 ms</text>
-<text x="480.0" y="140" font-size="13" font-weight="600" text-anchor="end" fill="#1a7f37">19.4× faster</text>
-<text x="32.0" y="212" font-size="13" fill="#1f2328">commit-one-file</text>
-<rect x="150.0" y="188" width="180.0" height="18" rx="3" fill="#8b949e"/>
-<text x="336.0" y="201" font-size="12" fill="#1f2328">66.9 ms</text>
-<rect x="150.0" y="212" width="6.7" height="18" rx="3" fill="#6d4aff"/>
-<text x="162.7" y="225" font-size="12" fill="#1f2328">2.5 ms</text>
-<text x="480.0" y="212" font-size="13" font-weight="600" text-anchor="end" fill="#1a7f37">26.8× faster</text>
-<text x="32.0" y="284" font-size="13" fill="#1f2328">full-clone</text>
-<rect x="150.0" y="260" width="180.0" height="18" rx="3" fill="#8b949e"/>
-<text x="336.0" y="273" font-size="12" fill="#1f2328">241 ms</text>
-<rect x="150.0" y="284" width="37.8" height="18" rx="3" fill="#6d4aff"/>
-<text x="193.8" y="297" font-size="12" fill="#1f2328">50.7 ms</text>
-<text x="480.0" y="284" font-size="13" font-weight="600" text-anchor="end" fill="#1a7f37">4.8× faster</text>
-<text x="32.0" y="356" font-size="13" fill="#1f2328">sparse-clone</text>
-<rect x="150.0" y="332" width="180.0" height="18" rx="3" fill="#8b949e"/>
-<text x="336.0" y="345" font-size="12" fill="#1f2328">84.2 ms</text>
-<rect x="150.0" y="356" width="13.0" height="18" rx="3" fill="#6d4aff"/>
-<text x="169.0" y="369" font-size="12" fill="#1f2328">6.1 ms</text>
-<text x="480.0" y="356" font-size="13" font-weight="600" text-anchor="end" fill="#1a7f37">13.8× faster</text>
-<text x="520.0" y="102" font-size="15" font-weight="600" fill="#1f2328">10,000 files × 4 KiB</text>
-<text x="520.0" y="140" font-size="13" fill="#1f2328">import</text>
-<rect x="638.0" y="116" width="180.0" height="18" rx="3" fill="#8b949e"/>
-<text x="824.0" y="129" font-size="12" fill="#1f2328">3,966 ms</text>
-<rect x="638.0" y="140" width="11.1" height="18" rx="3" fill="#6d4aff"/>
-<text x="655.1" y="153" font-size="12" fill="#1f2328">245 ms</text>
-<text x="968.0" y="140" font-size="13" font-weight="600" text-anchor="end" fill="#1a7f37">16.2× faster</text>
-<text x="520.0" y="212" font-size="13" fill="#1f2328">commit-one-file</text>
-<rect x="638.0" y="188" width="176.0" height="18" rx="3" fill="#8b949e"/>
-<text x="820.0" y="201" font-size="12" fill="#1f2328">21.8 ms</text>
-<rect x="638.0" y="212" width="180.0" height="18" rx="3" fill="#6d4aff"/>
-<text x="824.0" y="225" font-size="12" fill="#1f2328">22.3 ms</text>
-<text x="968.0" y="212" font-size="13" font-weight="600" text-anchor="end" fill="#59636e">on par</text>
-<text x="520.0" y="284" font-size="13" fill="#1f2328">full-clone</text>
-<rect x="638.0" y="260" width="180.0" height="18" rx="3" fill="#8b949e"/>
-<text x="824.0" y="273" font-size="12" fill="#1f2328">2,343 ms</text>
-<rect x="638.0" y="284" width="41.8" height="18" rx="3" fill="#6d4aff"/>
-<text x="685.8" y="297" font-size="12" fill="#1f2328">544 ms</text>
-<text x="968.0" y="284" font-size="13" font-weight="600" text-anchor="end" fill="#1a7f37">4.3× faster</text>
-<text x="520.0" y="356" font-size="13" fill="#1f2328">sparse-clone</text>
-<rect x="638.0" y="332" width="180.0" height="18" rx="3" fill="#8b949e"/>
-<text x="824.0" y="345" font-size="12" fill="#1f2328">158 ms</text>
-<rect x="638.0" y="356" width="28.8" height="18" rx="3" fill="#6d4aff"/>
-<text x="672.8" y="369" font-size="12" fill="#1f2328">25.3 ms</text>
-<text x="968.0" y="356" font-size="13" font-weight="600" text-anchor="end" fill="#1a7f37">6.2× faster</text>
-<text x="32" y="446" font-size="12" fill="#59636e">MVP caveats: OpenScion server is in-memory (no fsync, no compression) and runs in-process; see benchmarks/README.md.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1186" viewBox="0 0 1200 1186" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif">
+<rect width="1200" height="1186" fill="#e8e6dc"/>
+<text x="600.0" y="62" font-size="36" font-weight="700" fill="#141413" text-anchor="middle">Everyday source control commands: OpenScion vs git</text>
+<rect x="32" y="92" width="1136" height="1062" rx="22" fill="#faf9f5"/>
+<text x="420" y="150" font-size="21" font-weight="700" fill="#141413" text-anchor="start">Repository with 1,000 files</text>
+<rect x="790" y="126" width="150" height="34" rx="9" fill="none" stroke="#6b6a65" stroke-width="1.5"/>
+<rect x="806" y="135" width="16" height="16" rx="3" fill="#6f6d66"/>
+<text x="829" y="149" font-size="16" font-weight="400" fill="#6b6a65" text-anchor="start">git</text>
+<rect x="874" y="135" width="16" height="16" rx="3" fill="#d97757"/>
+<text x="897" y="149" font-size="16" font-weight="400" fill="#6b6a65" text-anchor="start">scn</text>
+<text x="1010" y="150" font-size="16" font-weight="400" fill="#6b6a65" text-anchor="start">Faster</text>
+<line x1="420.0" y1="178" x2="420.0" y2="330" stroke="#e3e1d9" stroke-width="1.5"/>
+<line x1="593.3" y1="178" x2="593.3" y2="330" stroke="#e3e1d9" stroke-width="1.5"/>
+<line x1="766.7" y1="178" x2="766.7" y2="330" stroke="#e3e1d9" stroke-width="1.5"/>
+<line x1="940.0" y1="178" x2="940.0" y2="330" stroke="#e3e1d9" stroke-width="1.5"/>
+<text x="400" y="216" font-size="17" font-weight="400" fill="#3d3d3a" text-anchor="end">Import a repository</text>
+<rect x="420" y="186" width="368.7" height="22" rx="3" fill="#6f6d66"/>
+<text x="796.7" y="203" font-size="15" font-weight="500" fill="#3d3d3a" text-anchor="start">425 ms</text>
+<rect x="420" y="212" width="19.0" height="22" rx="3" fill="#d97757"/>
+<text x="447.0" y="229" font-size="15" font-weight="500" fill="#3d3d3a" text-anchor="start">22 ms</text>
+<text x="1010" y="216" font-size="17" font-weight="700" fill="#141413" text-anchor="start">×19</text>
+<text x="400" y="288" font-size="17" font-weight="400" fill="#3d3d3a" text-anchor="end">Clone everything</text>
+<rect x="420" y="258" width="209.0" height="22" rx="3" fill="#6f6d66"/>
+<text x="637.0" y="275" font-size="15" font-weight="500" fill="#3d3d3a" text-anchor="start">241 ms</text>
+<rect x="420" y="284" width="43.9" height="22" rx="3" fill="#d97757"/>
+<text x="471.9" y="301" font-size="15" font-weight="500" fill="#3d3d3a" text-anchor="start">51 ms</text>
+<text x="1010" y="288" font-size="17" font-weight="700" fill="#141413" text-anchor="start">×4.8</text>
+<line x1="420" y1="178" x2="420" y2="330" stroke="#6b6a65" stroke-width="1.5"/>
+<line x1="420" y1="330" x2="940" y2="330" stroke="#6b6a65" stroke-width="1.5"/>
+<line x1="420.0" y1="330" x2="420.0" y2="336" stroke="#6b6a65" stroke-width="1.5"/>
+<text x="420.0" y="358" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">0 ms</text>
+<line x1="593.3" y1="330" x2="593.3" y2="336" stroke="#6b6a65" stroke-width="1.5"/>
+<text x="593.3" y="358" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">200 ms</text>
+<line x1="766.7" y1="330" x2="766.7" y2="336" stroke="#6b6a65" stroke-width="1.5"/>
+<text x="766.7" y="358" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">400 ms</text>
+<line x1="940.0" y1="330" x2="940.0" y2="336" stroke="#6b6a65" stroke-width="1.5"/>
+<text x="940.0" y="358" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">600 ms</text>
+<line x1="420.0" y1="392" x2="420.0" y2="544" stroke="#e3e1d9" stroke-width="1.5"/>
+<line x1="550.0" y1="392" x2="550.0" y2="544" stroke="#e3e1d9" stroke-width="1.5"/>
+<line x1="680.0" y1="392" x2="680.0" y2="544" stroke="#e3e1d9" stroke-width="1.5"/>
+<line x1="810.0" y1="392" x2="810.0" y2="544" stroke="#e3e1d9" stroke-width="1.5"/>
+<line x1="940.0" y1="392" x2="940.0" y2="544" stroke="#e3e1d9" stroke-width="1.5"/>
+<text x="400" y="430" font-size="17" font-weight="400" fill="#3d3d3a" text-anchor="end">Commit one changed file</text>
+<rect x="420" y="400" width="347.9" height="22" rx="3" fill="#6f6d66"/>
+<text x="775.9" y="417" font-size="15" font-weight="500" fill="#3d3d3a" text-anchor="start">67 ms</text>
+<rect x="420" y="426" width="13.0" height="22" rx="3" fill="#d97757"/>
+<text x="441.0" y="443" font-size="15" font-weight="500" fill="#3d3d3a" text-anchor="start">2.5 ms</text>
+<text x="1010" y="430" font-size="17" font-weight="700" fill="#141413" text-anchor="start">×27</text>
+<text x="400" y="502" font-size="17" font-weight="400" fill="#3d3d3a" text-anchor="end">Clone one directory</text>
+<rect x="420" y="472" width="437.8" height="22" rx="3" fill="#6f6d66"/>
+<text x="865.8" y="489" font-size="15" font-weight="500" fill="#3d3d3a" text-anchor="start">84 ms</text>
+<rect x="420" y="498" width="31.7" height="22" rx="3" fill="#d97757"/>
+<text x="459.7" y="515" font-size="15" font-weight="500" fill="#3d3d3a" text-anchor="start">6.1 ms</text>
+<text x="1010" y="502" font-size="17" font-weight="700" fill="#141413" text-anchor="start">×14</text>
+<line x1="420" y1="392" x2="420" y2="544" stroke="#6b6a65" stroke-width="1.5"/>
+<line x1="420" y1="544" x2="940" y2="544" stroke="#6b6a65" stroke-width="1.5"/>
+<line x1="420.0" y1="544" x2="420.0" y2="550" stroke="#6b6a65" stroke-width="1.5"/>
+<text x="420.0" y="572" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">0 ms</text>
+<line x1="550.0" y1="544" x2="550.0" y2="550" stroke="#6b6a65" stroke-width="1.5"/>
+<text x="550.0" y="572" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">25 ms</text>
+<line x1="680.0" y1="544" x2="680.0" y2="550" stroke="#6b6a65" stroke-width="1.5"/>
+<text x="680.0" y="572" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">50 ms</text>
+<line x1="810.0" y1="544" x2="810.0" y2="550" stroke="#6b6a65" stroke-width="1.5"/>
+<text x="810.0" y="572" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">75 ms</text>
+<line x1="940.0" y1="544" x2="940.0" y2="550" stroke="#6b6a65" stroke-width="1.5"/>
+<text x="940.0" y="572" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">100 ms</text>
+<text x="420" y="628" font-size="21" font-weight="700" fill="#141413" text-anchor="start">Repository with 10,000 files</text>
+<line x1="420.0" y1="656" x2="420.0" y2="808" stroke="#e3e1d9" stroke-width="1.5"/>
+<line x1="550.0" y1="656" x2="550.0" y2="808" stroke="#e3e1d9" stroke-width="1.5"/>
+<line x1="680.0" y1="656" x2="680.0" y2="808" stroke="#e3e1d9" stroke-width="1.5"/>
+<line x1="810.0" y1="656" x2="810.0" y2="808" stroke="#e3e1d9" stroke-width="1.5"/>
+<line x1="940.0" y1="656" x2="940.0" y2="808" stroke="#e3e1d9" stroke-width="1.5"/>
+<text x="400" y="694" font-size="17" font-weight="400" fill="#3d3d3a" text-anchor="end">Import a repository</text>
+<rect x="420" y="664" width="515.6" height="22" rx="3" fill="#6f6d66"/>
+<text x="943.6" y="681" font-size="15" font-weight="500" fill="#3d3d3a" text-anchor="start">4.0 s</text>
+<rect x="420" y="690" width="31.9" height="22" rx="3" fill="#d97757"/>
+<text x="459.9" y="707" font-size="15" font-weight="500" fill="#3d3d3a" text-anchor="start">245 ms</text>
+<text x="1010" y="694" font-size="17" font-weight="700" fill="#141413" text-anchor="start">×16</text>
+<text x="400" y="766" font-size="17" font-weight="400" fill="#3d3d3a" text-anchor="end">Clone everything</text>
+<rect x="420" y="736" width="304.6" height="22" rx="3" fill="#6f6d66"/>
+<text x="732.6" y="753" font-size="15" font-weight="500" fill="#3d3d3a" text-anchor="start">2.3 s</text>
+<rect x="420" y="762" width="70.8" height="22" rx="3" fill="#d97757"/>
+<text x="498.8" y="779" font-size="15" font-weight="500" fill="#3d3d3a" text-anchor="start">544 ms</text>
+<text x="1010" y="766" font-size="17" font-weight="700" fill="#141413" text-anchor="start">×4.3</text>
+<line x1="420" y1="656" x2="420" y2="808" stroke="#6b6a65" stroke-width="1.5"/>
+<line x1="420" y1="808" x2="940" y2="808" stroke="#6b6a65" stroke-width="1.5"/>
+<line x1="420.0" y1="808" x2="420.0" y2="814" stroke="#6b6a65" stroke-width="1.5"/>
+<text x="420.0" y="836" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">0 s</text>
+<line x1="550.0" y1="808" x2="550.0" y2="814" stroke="#6b6a65" stroke-width="1.5"/>
+<text x="550.0" y="836" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">1 s</text>
+<line x1="680.0" y1="808" x2="680.0" y2="814" stroke="#6b6a65" stroke-width="1.5"/>
+<text x="680.0" y="836" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">2 s</text>
+<line x1="810.0" y1="808" x2="810.0" y2="814" stroke="#6b6a65" stroke-width="1.5"/>
+<text x="810.0" y="836" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">3 s</text>
+<line x1="940.0" y1="808" x2="940.0" y2="814" stroke="#6b6a65" stroke-width="1.5"/>
+<text x="940.0" y="836" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">4 s</text>
+<line x1="420.0" y1="870" x2="420.0" y2="1022" stroke="#e3e1d9" stroke-width="1.5"/>
+<line x1="550.0" y1="870" x2="550.0" y2="1022" stroke="#e3e1d9" stroke-width="1.5"/>
+<line x1="680.0" y1="870" x2="680.0" y2="1022" stroke="#e3e1d9" stroke-width="1.5"/>
+<line x1="810.0" y1="870" x2="810.0" y2="1022" stroke="#e3e1d9" stroke-width="1.5"/>
+<line x1="940.0" y1="870" x2="940.0" y2="1022" stroke="#e3e1d9" stroke-width="1.5"/>
+<text x="400" y="908" font-size="17" font-weight="400" fill="#3d3d3a" text-anchor="end">Commit one changed file</text>
+<rect x="420" y="878" width="56.7" height="22" rx="3" fill="#6f6d66"/>
+<text x="484.7" y="895" font-size="15" font-weight="500" fill="#3d3d3a" text-anchor="start">22 ms</text>
+<rect x="420" y="904" width="58.0" height="22" rx="3" fill="#d97757"/>
+<text x="486.0" y="921" font-size="15" font-weight="500" fill="#3d3d3a" text-anchor="start">22 ms</text>
+<text x="1010" y="908" font-size="17" font-weight="700" fill="#6b6a65" text-anchor="start">same</text>
+<text x="400" y="980" font-size="17" font-weight="400" fill="#3d3d3a" text-anchor="end">Clone one directory</text>
+<rect x="420" y="950" width="410.8" height="22" rx="3" fill="#6f6d66"/>
+<text x="838.8" y="967" font-size="15" font-weight="500" fill="#3d3d3a" text-anchor="start">158 ms</text>
+<rect x="420" y="976" width="65.8" height="22" rx="3" fill="#d97757"/>
+<text x="493.8" y="993" font-size="15" font-weight="500" fill="#3d3d3a" text-anchor="start">25 ms</text>
+<text x="1010" y="980" font-size="17" font-weight="700" fill="#141413" text-anchor="start">×6.2</text>
+<line x1="420" y1="870" x2="420" y2="1022" stroke="#6b6a65" stroke-width="1.5"/>
+<line x1="420" y1="1022" x2="940" y2="1022" stroke="#6b6a65" stroke-width="1.5"/>
+<line x1="420.0" y1="1022" x2="420.0" y2="1028" stroke="#6b6a65" stroke-width="1.5"/>
+<text x="420.0" y="1050" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">0 ms</text>
+<line x1="550.0" y1="1022" x2="550.0" y2="1028" stroke="#6b6a65" stroke-width="1.5"/>
+<text x="550.0" y="1050" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">50 ms</text>
+<line x1="680.0" y1="1022" x2="680.0" y2="1028" stroke="#6b6a65" stroke-width="1.5"/>
+<text x="680.0" y="1050" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">100 ms</text>
+<line x1="810.0" y1="1022" x2="810.0" y2="1028" stroke="#6b6a65" stroke-width="1.5"/>
+<text x="810.0" y="1050" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">150 ms</text>
+<line x1="940.0" y1="1022" x2="940.0" y2="1028" stroke="#6b6a65" stroke-width="1.5"/>
+<text x="940.0" y="1050" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">200 ms</text>
+<text x="680.0" y="1076" font-size="16" font-weight="400" fill="#6b6a65" text-anchor="middle">Median time</text>
+<text x="600.0" y="1110" font-size="14" font-weight="400" fill="#6b6a65" text-anchor="middle">4 KiB files on one laptop. Early MVP: the OpenScion server keeps everything in memory</text>
+<text x="600.0" y="1130" font-size="14" font-weight="400" fill="#6b6a65" text-anchor="middle">and runs in-process, so these gaps are wider than a production system would show.</text>
 </svg>
