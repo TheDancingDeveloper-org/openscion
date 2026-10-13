@@ -2,7 +2,8 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use std::time::Duration;
 
 use openscion_benchmarks::{Error, Fixture, FixtureShape, Scenario, git, openscion};
 
@@ -11,6 +12,8 @@ const SHAPE: FixtureShape = FixtureShape {
     files_per_directory: 2,
     file_bytes: 32,
 };
+
+type Backend = fn(Scenario, &Fixture, &Path) -> openscion_benchmarks::Result<Duration>;
 
 fn workdir(name: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(name)
@@ -45,10 +48,7 @@ fn every_scenario_runs_against_openscion() {
 #[test]
 fn both_backends_clone_the_fixture_byte_for_byte() {
     let fixture = Fixture::generate(SHAPE, 3);
-    for (backend, run) in [
-        ("git", git::run as fn(_, _, _) -> _),
-        ("openscion", openscion::run),
-    ] {
+    for (backend, run) in [("git", git::run as Backend), ("openscion", openscion::run)] {
         let dir = workdir(&format!("{backend}-identical"));
         run(Scenario::FullClone, &fixture, &dir).unwrap();
         for file in fixture.files() {
@@ -65,10 +65,7 @@ fn both_backends_clone_the_fixture_byte_for_byte() {
 #[test]
 fn both_backends_sparse_clone_only_the_first_directory() {
     let fixture = Fixture::generate(SHAPE, 3);
-    for (backend, run) in [
-        ("git", git::run as fn(_, _, _) -> _),
-        ("openscion", openscion::run),
-    ] {
+    for (backend, run) in [("git", git::run as Backend), ("openscion", openscion::run)] {
         let dir = workdir(&format!("{backend}-sparse"));
         run(Scenario::SparseClone, &fixture, &dir).unwrap();
         assert!(dir.join("clone/dir0000/file0000.txt").exists(), "{backend}");
