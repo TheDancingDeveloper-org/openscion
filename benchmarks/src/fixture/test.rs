@@ -26,7 +26,12 @@ fn the_shape_sets_the_file_count_paths_and_sizes() {
     assert_eq!(fixture.files().len(), 12);
     assert_eq!(fixture.files()[0].path, "dir0000/file0000.txt");
     assert_eq!(fixture.files()[11].path, "dir0002/file0003.txt");
-    assert!(fixture.files().iter().all(|file| file.contents.len() == 100));
+    assert!(
+        fixture
+            .files()
+            .iter()
+            .all(|file| file.contents.len() == 100)
+    );
     assert!(
         fixture
             .files()

@@ -559,6 +559,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "openscion-benchmarks"
+version = "0.2.1"
+dependencies = [
+ "clap",
+ "thiserror",
+]
+
+[[package]]
 name = "openscion-cli"
 version = "0.2.1"
 dependencies = [
