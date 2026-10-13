@@ -38,6 +38,27 @@ pub fn run(scenario: Scenario, fixture: &Fixture, workdir: &Path) -> Result<Dura
             // relative `workdir` resolves the same way for every command.
             timed(|| git(workdir, &["clone", "-q", "--no-local", "repo", "clone"]))
         }
+        Scenario::SparseClone => {
+            let directory = fixture.first_directory().ok_or(Error::NoDirectory)?;
+            import(&repo)?;
+            // A partial clone needs the source to serve filtered packs.
+            git(&repo, &["config", "uploadpack.allowFilter", "true"])?;
+            timed(|| {
+                git(
+                    workdir,
+                    &[
+                        "clone",
+                        "-q",
+                        "--no-local",
+                        "--filter=blob:none",
+                        "--sparse",
+                        "repo",
+                        "clone",
+                    ],
+                )?;
+                git(&workdir.join("clone"), &["sparse-checkout", "set", directory])
+            })
+        }
     }
 }
 
@@ -53,7 +74,7 @@ fn timed(operation: impl FnOnce() -> Result<()>) -> Result<Duration> {
     Ok(start.elapsed())
 }
 
-fn reset(workdir: &Path) -> Result<()> {
+pub(crate) fn reset(workdir: &Path) -> Result<()> {
     if workdir.exists() {
         std::fs::remove_dir_all(workdir).map_err(|source| Error::Io {
             path: workdir.to_path_buf(),

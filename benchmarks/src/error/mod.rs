@@ -32,6 +32,15 @@ pub enum Error {
         /// What the command printed to standard error.
         stderr: String,
     },
+    /// An `scn` command failed.
+    #[error("scn: {0}")]
+    OpenScion(#[from] openscion::Error),
+    /// The in-process OpenScion server could not be started.
+    #[error("cannot start openscion-server: {0}")]
+    Server(String),
+    /// The fixture has no directory for the sparse-clone scenario to fetch.
+    #[error("the fixture has no directories to clone sparsely")]
+    NoDirectory,
     /// The number of runs per scenario was zero.
     #[error("runs must be at least 1")]
     ZeroRuns,

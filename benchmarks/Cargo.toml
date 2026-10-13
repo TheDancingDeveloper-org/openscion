@@ -18,6 +18,11 @@ path = "src/main.rs"
 [dependencies]
 clap = { workspace = true }
 thiserror = { workspace = true }
+# The OpenScion backend drives `scn` in-process against an in-process
+# `openscion-server`, so no binaries need building first.
+openscion = { workspace = true }
+openscion-server = { workspace = true }
+tokio = { workspace = true }
 
 [lints]
 workspace = true

@@ -43,6 +43,15 @@ impl Fixture {
         &self.files
     }
 
+    /// The top-level directory of the first file: what the sparse-clone
+    /// scenario fetches. `None` for an empty fixture or one with only
+    /// top-level files.
+    #[must_use]
+    pub fn first_directory(&self) -> Option<&str> {
+        let (directory, _) = self.files.first()?.path.split_once('/')?;
+        Some(directory)
+    }
+
     /// Writes every file under `root`, creating directories as needed.
     ///
     /// # Errors

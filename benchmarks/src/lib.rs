@@ -6,15 +6,14 @@
 //!
 //! These are coarse, whole-operation timings — seconds, not nanoseconds — of
 //! the things a developer or CI job actually waits for: importing a tree,
-//! committing a change, and getting a full copy. They are meant to show trends
+//! committing a change, and getting a full or a one-directory copy. They are meant to show trends
 //! between versions and against git, not to resolve small differences.
 //!
 //! # Backends
 //!
 //! - [`git`] drives the `git` command-line tool, which must be on `PATH`.
-//! - The OpenScion backend is added when the engine can create changesets
-//!   (phase 1 in `docs/specs/openscion-architecture.md`); until then the
-//!   harness records the git baselines OpenScion will be measured against.
+//! - [`openscion`](mod@openscion) drives `scn` against an in-process
+//!   `openscion-server`, both running in this process.
 //!
 //! # Example
 //!
@@ -30,6 +29,7 @@
 mod error;
 mod fixture;
 pub mod git;
+pub mod openscion;
 mod report;
 mod scenario;
 

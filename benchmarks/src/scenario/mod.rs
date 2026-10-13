@@ -16,11 +16,19 @@ pub enum Scenario {
     CommitOneFile,
     /// Produce a complete local copy of an imported repository.
     FullClone,
+    /// Produce a local copy of one top-level directory of an imported
+    /// repository — the agent case, where a job needs a slice of the tree.
+    SparseClone,
 }
 
 impl Scenario {
     /// Every scenario, in report order.
-    pub const ALL: [Self; 3] = [Self::Import, Self::CommitOneFile, Self::FullClone];
+    pub const ALL: [Self; 4] = [
+        Self::Import,
+        Self::CommitOneFile,
+        Self::FullClone,
+        Self::SparseClone,
+    ];
 
     /// The scenario's name in reports and on the command line.
     #[must_use]
@@ -29,6 +37,7 @@ impl Scenario {
             Self::Import => "import",
             Self::CommitOneFile => "commit-one-file",
             Self::FullClone => "full-clone",
+            Self::SparseClone => "sparse-clone",
         }
     }
 }

@@ -625,7 +625,10 @@ name = "openscion-benchmarks"
 version = "0.2.1"
 dependencies = [
  "clap",
+ "openscion",
+ "openscion-server",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]

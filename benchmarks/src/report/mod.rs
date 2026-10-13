@@ -42,30 +42,96 @@ pub struct Report {
 }
 
 impl Report {
-    /// Renders the report as a Markdown table of median times.
+    /// Renders the report as a Markdown table: one row per scenario, one
+    /// median column per backend, and — when `git` is one of the backends —
+    /// how many times faster each other backend is than git.
     ///
     /// # Errors
     ///
     /// Returns [`Error::ZeroRuns`] when a measurement has no runs.
     pub fn to_markdown(&self) -> Result<String> {
-        let mut out = format!(
-            "Fixture: {}\n\n| Scenario | Backend | Runs | Median |\n| --- | --- | ---: | ---: |\n",
-            self.fixture
-        );
+        let mut backends: Vec<&str> = Vec::new();
+        let mut scenarios: Vec<Scenario> = Vec::new();
         for measurement in &self.measurements {
-            let median = measurement.median()?;
-            // Writing to a `String` cannot fail.
-            let _ = writeln!(
-                out,
-                "| {} | {} | {} | {:.1} ms |",
-                measurement.scenario,
-                measurement.backend,
-                measurement.runs.len(),
-                median.as_secs_f64() * 1000.0
-            );
+            if !backends.contains(&measurement.backend) {
+                backends.push(measurement.backend);
+            }
+            if !scenarios.contains(&measurement.scenario) {
+                scenarios.push(measurement.scenario);
+            }
+        }
+        let others: Vec<&str> = if backends.contains(&"git") {
+            backends.iter().copied().filter(|b| *b != "git").collect()
+        } else {
+            Vec::new()
+        };
+
+        let mut out = format!("Fixture: {}\n\n| Scenario |", self.fixture);
+        let mut rule = String::from("| --- |");
+        for backend in backends.iter().chain(&others) {
+            out.push_str(if others.contains(backend) && rule.matches('|').count() > backends.len() + 1 {
+                ""
+            } else {
+                ""
+            });
+            let _ = backend;
+        }
+        for backend in &backends {
+            let _ = write!(out, " {backend} |");
+            rule.push_str(" ---: |");
+        }
+        for backend in &others {
+            let _ = write!(out, " {backend} vs git |");
+            rule.push_str(" ---: |");
+        }
+        let _ = writeln!(out, "\n{rule}");
+
+        for scenario in scenarios {
+            let _ = write!(out, "| {scenario} |");
+            let mut medians = Vec::with_capacity(backends.len());
+            for backend in &backends {
+                let median = self.median(scenario, backend)?;
+                match median {
+                    Some(median) => {
+                        let _ = write!(out, " {:.1} ms |", millis(median));
+                    }
+                    None => out.push_str(" — |"),
+                }
+                medians.push((*backend, median));
+            }
+            let git = medians
+                .iter()
+                .find(|(backend, _)| *backend == "git")
+                .and_then(|(_, median)| *median);
+            for backend in &others {
+                let other = medians
+                    .iter()
+                    .find(|(name, _)| name == backend)
+                    .and_then(|(_, median)| *median);
+                match (git, other) {
+                    (Some(git), Some(other)) if !other.is_zero() => {
+                        let _ = write!(out, " {:.2}× |", millis(git) / millis(other));
+                    }
+                    _ => out.push_str(" — |"),
+                }
+            }
+            out.push('\n');
         }
         Ok(out)
     }
+
+    /// The median of `scenario` on `backend`, or `None` if it was not run.
+    fn median(&self, scenario: Scenario, backend: &str) -> Result<Option<Duration>> {
+        self.measurements
+            .iter()
+            .find(|m| m.scenario == scenario && m.backend == backend)
+            .map(Measurement::median)
+            .transpose()
+    }
+}
+
+fn millis(duration: Duration) -> f64 {
+    duration.as_secs_f64() * 1000.0
 }
 
 #[cfg(test)]
