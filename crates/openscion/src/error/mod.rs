@@ -59,6 +59,9 @@ pub enum Error {
         #[source]
         source: std::io::Error,
     },
+    /// A file name in the working copy is not UTF-8.
+    #[error("{} is not a UTF-8 path", .0.display())]
+    NonUtf8Path(PathBuf),
     /// The directory is not an `scn` working copy.
     #[error("{} is not an scn working copy (no .scn/state.json)", .0.display())]
     NotAWorkingCopy(PathBuf),

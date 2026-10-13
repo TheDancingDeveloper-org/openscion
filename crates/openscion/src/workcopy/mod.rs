@@ -17,7 +17,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use openscion_core::{EntryKind, ObjectId, ObjectKind, RepoPath, object_id};
+use openscion_core::{EntryKind, ObjectId, ObjectKind, object_id};
 
 use crate::{Error, Result};
 pub(crate) use types::{FileState, Scanned, State};
@@ -93,19 +93,9 @@ fn walk(dir: &Path, prefix: &str, out: &mut Vec<Scanned>) -> Result<()> {
         let entry = entry.map_err(io_error(dir))?;
         let full = entry.path();
         let name = entry.file_name();
-        let name = name.to_str().ok_or_else(|| {
-            Error::Engine(
-                RepoPath::new(String::from_utf8_lossy(full.as_os_str().as_encoded_bytes()))
-                    .err()
-                    .map_or_else(
-                        || openscion_core::Error::Malformed {
-                            what: "path",
-                            reason: "not UTF-8",
-                        },
-                        openscion_core::Error::InvalidPath,
-                    ),
-            )
-        })?;
+        let name = name
+            .to_str()
+            .ok_or_else(|| Error::NonUtf8Path(full.clone()))?;
         if prefix.is_empty() && name == STATE_DIR {
             continue;
         }
