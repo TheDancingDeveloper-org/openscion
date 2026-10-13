@@ -91,9 +91,8 @@ then `packfile`. Wants "are not limited to advertised objects", but
 upload-pack's `uploadpack.allow{Tip,Reachable,Any}SHA1InWant` settings decide
 which unadvertised ids it accepts.
 
-**Where cost scales.** In v0 every fetch pays for the full ref advertisement,
-proportional to the number of refs, before any work starts. v2 removes that
-but does not change negotiation or pack generation.
+**Where cost scales.** In v0 every fetch first pays for an advertisement
+proportional to the ref count; v2 removes that but not negotiation.
 
 ## Fetch negotiation
 
@@ -232,8 +231,7 @@ with a `.promisor` file; any object they reference but do not contain is
 treated as promised rather than corrupt, so git need not keep a list of missing
 objects (the design notes estimate such a list at about 2 GiB for 100 million
 blobs). When a lookup misses, git fetches the object from a promisor remote
-(`remote.<name>.promisor`, `partialCloneFilter`; several remotes may be listed
-and are tried in config order). The design doc lists the known limitations:
+(several may be configured, tried in order). Known limitations:
 
 - Dynamic fetches mostly happen **one object at a time**, because most
   algorithms need each object before continuing, adding round trips and
