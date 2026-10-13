@@ -44,13 +44,9 @@ All smart protocols are framed as **pkt-lines**
 ([gitprotocol-common](https://git-scm.com/docs/gitprotocol-common)). Each line
 starts with four lowercase hex digits giving the total length including the
 prefix; the payload is binary-safe and at most 65516 bytes, so a line is at
-most 65520 bytes. Special packets carry no payload:
-
-| Packet | Meaning |
-| --- | --- |
-| `0000` flush-pkt | End of a message |
-| `0001` delim-pkt | Section separator (protocol v2) |
-| `0002` response-end-pkt | End of a response on stateless connections (protocol v2) |
+most 65520 bytes. Special packets carry no payload: `0000` flush-pkt ends a
+message; protocol v2 adds `0001` delim-pkt between sections and `0002`
+response-end-pkt to end a response on stateless connections.
 
 The pack itself is usually **multiplexed** onto pkt-lines with a one-byte
 sideband code per packet: `1` pack data, `2` progress for stderr, `3` fatal
