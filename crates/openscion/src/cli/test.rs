@@ -112,8 +112,10 @@ fn import_commit_and_clone_run_from_the_command_line() {
 
     let dest = scratch("cli-clone").join("copy");
     let dest = dest.to_str().unwrap();
-    let cli =
-        Cli::try_parse_from(["opnscn", "--server", &base, "clone", dest, "--path", "b.txt"]).unwrap();
+    let cli = Cli::try_parse_from([
+        "opnscn", "--server", &base, "clone", dest, "--path", "b.txt",
+    ])
+    .unwrap();
     assert!(output(&cli).starts_with("cloned 1 files of "));
 }
 
