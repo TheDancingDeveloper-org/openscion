@@ -98,7 +98,10 @@ impl ServerClient {
     /// As for [`ServerClient::upload_blobs`].
     pub fn fetch_objects(&self, ids: Vec<ObjectId>) -> Result<Vec<u8>> {
         let url = self.url("/v1/objects");
-        let mut response = checked(&url, self.agent.post(&url).send_json(FetchObjects::new(ids)))?;
+        let mut response = checked(
+            &url,
+            self.agent.post(&url).send_json(FetchObjects::new(ids)),
+        )?;
         response
             .body_mut()
             .with_config()

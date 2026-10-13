@@ -84,5 +84,11 @@ pub enum Error {
     Output(#[source] std::io::Error),
 }
 
+impl From<openscion_core::PathError> for Error {
+    fn from(error: openscion_core::PathError) -> Self {
+        Self::Engine(error.into())
+    }
+}
+
 /// The client's standard result type.
 pub type Result<T> = std::result::Result<T, Error>;
