@@ -29,10 +29,9 @@ Every object id is the hash of a header followed by the payload
 id = H( type ‖ " " ‖ decimal(len(payload)) ‖ "\0" ‖ payload )
 ```
 
-A blob containing `abc` hashes the bytes `blob 3\0abc`. The id covers the
-uncompressed bytes, so compression and storage layout never change an id. The
-type in the header means a blob and a tree with identical payloads get
-different ids.
+A blob containing `abc` hashes `blob 3\0abc`. The id covers uncompressed bytes,
+so compression never changes an id, and the type in the header gives a blob
+and a tree with identical payloads different ids.
 
 ### Commits and tags
 
@@ -473,8 +472,9 @@ The OpenScion spec keeps git's content addressing and replaces most of the rest
 | Sparse checkout limits files, not objects | The client fetches only the trees and blobs under the paths it needs, so sparse checkout needs no protocol support. |
 | Worktrees and submodules | Not modelled in the data model. |
 
-Two git lessons carry over directly. First, every format that embeds an id is tied
-to its hash function, and changing one means translating everything, which is why the OpenScion encodings
-are pinned byte for byte with golden tests. Second, many of git's fastest paths are
-derived caches added after the fact (commit-graph, Bloom filters, bitmaps,
-cache tree); OpenScion starts from that model instead of retrofitting it.
+Two git lessons carry over directly. First, every format that embeds an id is
+tied to its hash function, and changing it means translating everything, which
+is why the OpenScion encodings are pinned byte for byte with golden tests.
+Second, many of git's fastest paths are derived caches added after the fact
+(commit-graph, Bloom filters, bitmaps, cache tree); OpenScion starts from that
+model instead of retrofitting it.
