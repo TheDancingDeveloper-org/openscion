@@ -264,9 +264,6 @@ work as tasks:
 | `gc` | full cleanup and repack; "can be expensive and disruptive" | not scheduled |
 | `geometric-repack` | geometric repacking, used by the `geometric` strategy | per strategy |
 
-Others (`reflog-expire`, `rerere-gc`, `worktree-prune`) run under `--auto`
-when their thresholds are met.
-
 **Scaling:** maintenance is required for performance, its cost is a function
 of the whole object store, and every replica, mirror, and cache of the
 repository must run it independently.
@@ -306,21 +303,16 @@ transaction touching packed refs rewrites the whole file.
 ### Reftable
 
 [Reftable](https://git-scm.com/docs/reftable), originally designed for JGit, is
-a binary, block-based format.
-
-- A table is a sequence of blocks: ref blocks (`r`, sorted by name), optional
-  obj blocks (`o`, from abbreviated object ids back to refs), log blocks (`g`,
-  zlib-compressed reflog records), index blocks (`i`), and a footer with a
-  CRC-32.
-- Names in a block are **prefix-compressed** against the previous name, with a
-  restart table of uncompressed entries so readers binary-search restarts and
-  scan from there.
-- A repository holds a **stack** of tables listed in `reftable/tables.list`.
-  Readers search newest-first; a deletion is a tombstone record.
-- A transaction writes a new table, then commits by renaming
-  `tables.list.lock` over `tables.list`, a single atomic rename. Writers are
-  serialized by that lock.
-- Adjacent tables are **compacted** with a merge join while updates continue.
+a binary, block-based format. A table is a sequence of ref blocks (sorted by
+name), optional obj blocks (from abbreviated object ids back to refs), log
+blocks (zlib-compressed reflog records), index blocks, and a footer with a
+CRC-32. Names are **prefix-compressed** against the previous name, with a
+restart table of uncompressed entries that readers binary-search. A repository
+holds a **stack** of tables listed in `reftable/tables.list`, searched
+newest-first, with deletions as tombstones. A transaction writes a new table
+and commits by renaming `tables.list.lock` over `tables.list`: one atomic
+rename, with writers serialized by that lock. Adjacent tables are
+**compacted** by a merge join while updates continue.
 
 On the Android data set, reftable reduced storage from 62.2 MB to 36.1 MB,
 cold lookup by name from 409,660 µs to 33.9 µs, and reflog storage from 173 MB
@@ -332,17 +324,14 @@ to 5 MB. Git 2.45 added reftable as a ref backend (`git init
 
 The index (`.git/index`) is a flat, sorted list of every tracked path with its
 blob id and cached `stat(2)` data, plus extensions
-([gitformat-index](https://git-scm.com/docs/gitformat-index)).
-
-- Header: `DIRC`, version (2, 3, or 4), entry count.
-- Each entry stores ctime, mtime, dev, inode, mode, uid, gid, size, the object
-  id, flags (assume-valid, a 2-bit merge stage, name length), and the path.
-- Version 3 adds extended flags, notably **skip-worktree** (sparse checkout)
-  and **intent-to-add** (`git add -N`).
-- Version 4 prefix-compresses each path against the previous one and drops
-  padding. It is the default when `feature.manyFiles` is enabled.
-- The file ends with a checksum of everything before it, which
-  `index.skipHash` can skip computing.
+([gitformat-index](https://git-scm.com/docs/gitformat-index)). The header is
+`DIRC`, a version (2, 3, or 4), and an entry count. Each entry stores ctime,
+mtime, dev, inode, mode, uid, gid, size, the object id, flags (assume-valid, a
+2-bit merge stage, name length), and the path. Version 3 adds extended flags,
+notably **skip-worktree** (sparse checkout) and **intent-to-add**
+(`git add -N`). Version 4 prefix-compresses each path against the previous one
+and is the default under `feature.manyFiles`. A trailing checksum covers the
+whole file (`index.skipHash` skips computing it).
 
 `git status` compares each entry's cached stat data to the file on disk and
 rehashes only files whose stat changed. Important extensions:
@@ -411,10 +400,10 @@ let the walk stop early. **Scaling:** without a commit-graph, the walk parses
 each commit object it visits; the walk length depends on how far the two sides
 diverged, not on total history, once generation numbers bound it.
 
-### Merge strategies
+### Merge and rebase
 
 `ort` ("Ostensibly Recursive's Twin") replaced `recursive` as the default
-two-head strategy after Git 2.33, and since Git 2.50 `recursive` is a synonym
+two-head strategy in Git 2.34, and since Git 2.50 `recursive` is a synonym
 for `ort` ([merge-strategies](https://git-scm.com/docs/merge-strategies)). With
 several merge bases, `ort` first merges them into a virtual base tree, then
 does a three-way merge. It detects renames but not copies. `octopus` handles
@@ -427,15 +416,13 @@ and conflict list, and `git replay` replays commits onto a new base.
 **Scaling:** a merge diffs each side against the base; rename detection adds
 pairwise comparison of unmatched added and deleted files (below).
 
-### Rebase
-
 `git rebase` rewrites each commit in the range by cherry-picking it onto the
 new base, using the merge machinery once per commit, and creates new commits
 with new ids. **Scaling:** cost is proportional to the number of commits
 replayed times the cost of one three-way merge, and every descendant commit gets
 a new id even when its content is unchanged.
 
-### Blame
+### Blame and path history
 
 `git blame` starts from the file at the given commit and walks history
 backwards. At each commit that changed the file, it diffs the file against the
@@ -446,8 +433,6 @@ detection (`-C`, `-M`) searches other files for the moved lines and is much
 more expensive. **Scaling:** proportional to the number of commits walked and
 the file's size at each, with no persistent index; every blame request is
 recomputed from scratch.
-
-### Log with a pathspec
 
 `git log -- <path>` simplifies history to commits that are not *TREESAME* to
 their parents at that path. Deciding that requires comparing the trees along the
@@ -480,10 +465,10 @@ with the product of added and deleted file counts.
 | Merge base, `--contains` | commits walked | commit-graph, generation numbers |
 | Path history, blame | commits walked, tree diffs per commit | changed-path Bloom filters |
 | Rename detection | added files times deleted files | rename limits, exact-match first |
-| Rebase | commits replayed | `ort` optimizations, `git replay` |
+| Rebase | commits replayed | `git replay` without a worktree |
 
-Each mitigation is a separate derived file that has to be built, kept current,
-and understood by every tool that reads the repository.
+Most mitigations are separate derived files that have to be built, kept
+current, and understood by every tool that reads the repository.
 
 ## What this means for OpenScion
 
