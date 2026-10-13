@@ -221,9 +221,8 @@ history, but cannot help for commits over the 512-path cap.
 ### Garbage collection, cruft packs, and geometric repacking
 
 Unreachable objects cannot be deleted immediately, because an in-flight push
-might reference them. `git gc` therefore expires them only after a grace period
-(`gc.pruneExpire`, default two weeks)
-([gc config](https://git-scm.com/docs/git-config#Documentation/git-config.txt-gcpruneExpire)).
+might reference them, so `git gc` expires them after a grace period
+(`gc.pruneExpire`, default two weeks).
 Historically they were exploded into loose objects to keep per-object mtimes,
 which could starve inodes and could not be delta-compressed. **Cruft packs**
 (Git 2.37) instead store all unreachable objects in one pack with a `.mtimes`
@@ -337,12 +336,11 @@ and `git add` are O(files at `HEAD`) rather than O(files populated)
 ([sparse-index design](https://github.com/git/git/blob/master/Documentation/technical/sparse-index.adoc)).
 It is off by default (`index.sparse`).
 
-**File system monitor.** With `core.fsmonitor = true`, the builtin daemon
-(`git fsmonitor--daemon`) watches the worktree and answers "what changed since
-token T", so `git status` avoids a full stat walk. It is available only on
-Windows and macOS ([core config](https://git-scm.com/docs/git-config#Documentation/git-config.txt-corefsmonitor);
-[GitHub blog](https://github.blog/engineering/infrastructure/improve-git-monorepo-performance-with-a-file-system-monitor)).
-Earlier versions used a hook calling an external watcher such as Watchman.
+**File system monitor.** With `core.fsmonitor = true`, the builtin
+`git fsmonitor--daemon` watches the worktree and answers "what changed since
+token T", so `git status` skips the full stat walk. It runs only on Windows and
+macOS ([GitHub blog](https://github.blog/engineering/infrastructure/improve-git-monorepo-performance-with-a-file-system-monitor));
+earlier setups used a hook calling an external watcher such as Watchman.
 
 **Scaling:** without these extensions, reading and writing the index and
 refreshing status cost O(tracked files) on every command, independent of how
