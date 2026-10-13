@@ -166,12 +166,9 @@ needed ([*Scaling repository maintenance*](https://about.gitlab.com/blog/scaling
   unreachable objects packed with per-object mtimes for the 14-day grace period.
   Repacking time on the largest internal repositories fell about 80%
   ([*Rearchitecting object database maintenance*](https://about.gitlab.com/blog/rearchitecting-git-object-database-mainentance-for-scale/)).
-- **Triggers:** every N pushes, on request, and a scheduled daily window for
-  repositories that receive no pushes
-  ([housekeeping](https://docs.gitlab.com/administration/housekeeping/)).
-
-The old all-into-one repack could take hours and large amounts of memory on a
-monorepo. This whole category is what Scion's "no packfiles" principle removes.
+- **Triggers:** every N pushes, on request, and a daily window for idle
+  repositories ([housekeeping](https://docs.gitlab.com/administration/housekeeping/)).
+  The old all-into-one repack could take hours on a monorepo.
 
 ### Object pools for forks
 
@@ -272,11 +269,9 @@ Gitaly-Cluster-without-Praefect direction has been dropped," transactions are
 disabled in staging, and the WAL, transaction, and Raft code is being removed.
 Praefect with serialized writes remains the replication design.
 
-Separately, a rollout to git's **reftable** backend (git 2.45) targets ref-count
-pain: deleting from `packed-refs` rewrites the whole file, and `DeleteRefs`
-averaged about 20 times `WriteRef` latency
-([reftable blueprint](https://handbook.gitlab.com/handbook/engineering/architecture/design-documents/gitaly_reftable_rollout/);
-it reports a staging rollout; production status was unclear).
+Separately, a [reftable rollout](https://handbook.gitlab.com/handbook/engineering/architecture/design-documents/gitaly_reftable_rollout/)
+(git 2.45; staging done, production status unclear) targets ref-count pain:
+`DeleteRefs` averaged about 20 times `WriteRef` latency.
 
 ## Request flows
 
@@ -407,8 +402,7 @@ mostly reduces what git asks of the server:
 - **Partial clone** (git 2.22+) with `blob:limit` or `blob:none` plus sparse
   checkout; the `sparse:oid` filter is experimental and may be slow and costly
   on the server ([reduce clone size](https://docs.gitlab.com/topics/git/clone/)).
-- **LFS** keeps large binaries in object storage behind pointer files
-  ([Git LFS](https://docs.gitlab.com/topics/git/lfs/)).
+- **LFS** keeps binaries in object storage ([Git LFS](https://docs.gitlab.com/topics/git/lfs/)).
 
 ## Where cost scales
 
