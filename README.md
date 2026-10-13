@@ -1,3 +1,5 @@
+![OpenScion](https://raw.githubusercontent.com/tinyhumansai/openscion/refs/heads/main/docs/og.jpeg)
+
 # OpenScion
 
 OpenScion is an open-source, server-centric source control system for very
