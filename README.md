@@ -13,7 +13,7 @@ Scion, in
 `opnscn` against git on synthetic repositories of 4 KiB files, measured with
 `openscion-bench` (`cargo run -p openscion-benchmarks --release`):
 
-![OpenScion vs git on synthetic repositories: median times to import a repository, clone everything, commit one changed file, and clone one directory, on 1,000 and 10,000 files](docs/images/opnscn-vs-git.svg)
+![OpenScion vs git on synthetic repositories: median times to import a repository, clone everything, commit one changed file, and clone one directory, on 1,000 and 10,000 files](docs/images/opnscn-benchmarks.svg)
 
 OpenScion imports and clones several times faster than git at both sizes. The
 one-directory clone shows the design at work: `opnscn` fetches only the trees
