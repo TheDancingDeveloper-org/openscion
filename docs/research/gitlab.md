@@ -91,7 +91,8 @@ ignores on-server git config and injects its own.
   access checks can read objects that are not yet in the repository
   ([object quarantine](https://gitlab.com/gitlab-org/gitaly/-/blob/master/doc/object_quarantine.md)).
 - **Layout.** Repositories live under hashed paths
-  (`@hashed/xx/yy/<sha256>.git`), so a project rename does not move data.
+  (`@hashed/xx/yy/<sha256>.git`), so a project rename does not move data
+  ([storage paths](https://docs.gitlab.com/administration/repository_storage_paths/)).
 
 ### gRPC surface
 
@@ -123,8 +124,7 @@ the access-check hooks as that user, and update a ref. Details worth noting:
   fails; the zero OID means "create". If unset, the branch is overwritten.
 - **Two-phase confirmation.** `UserMergeBranch` and `UserRebaseConfirmable`
   first return the commit they computed; only a second message with
-  `apply = true` updates the ref. Rails uses the gap to record the merge commit
-  ID before it becomes visible.
+  `apply = true` updates the ref.
 - **`UserMergeToRef` and `UserRebaseToRef`** write a merge or rebase result to
   an arbitrary ref (overwriting it) without touching the target branch. They
   exist for internal refs such as `refs/merge-requests/*`; `UserRebaseToRef`
@@ -342,8 +342,8 @@ and key ID, receives Gitaly connection details, and proxies the session to
 **Push, inside Gitaly.** `git receive-pack` writes objects to quarantine,
 `pre-receive` calls Rails `/internal/allowed` (which may call back into Gitaly,
 for example `CommitIsAncestor`, against the quarantine), custom hooks run, refs
-update (voted on under Praefect), and `post-receive` tells Rails to enqueue
-pipelines, merge request refreshes, and housekeeping counters.
+update (voted on under Praefect), and `post-receive` notifies Rails, which
+runs post-push processing such as pipelines and merge request updates.
 
 **UI or API write.** Rails calls an `OperationService` RPC directly. The same
 hooks run, so access checks apply identically to pushes and server-side
@@ -359,8 +359,7 @@ commits.
 | `refs/merge-requests/<iid>/merge` | Result of merging source into target, as the target would look after a merge | `UserMergeToRef`, refreshed by mergeability checks and the [`merge_ref` API](https://docs.gitlab.com/api/merge_requests/#merge-to-default-merge-ref-path) |
 | `refs/merge-requests/<iid>/train` | Merge train result with all earlier cars | Merge train ([source](https://gitlab.com/gitlab-org/gitlab/-/blob/master/app/models/merge_request.rb)) |
 
-Every open merge request therefore costs the target repository at least two
-refs, and CI pipelines run against them. Clients can fetch them with the refspec
+Every merge request therefore costs the target repository up to three refs, and CI pipelines run against them. Clients can fetch them with the refspec
 `+refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*`
 ([troubleshooting](https://docs.gitlab.com/user/project/merge_requests/merge_request_troubleshooting/)).
 Merge request diffs shown in the UI are size-limited copies stored in the
