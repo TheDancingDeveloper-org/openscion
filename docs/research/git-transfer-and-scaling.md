@@ -1,16 +1,12 @@
 # Background: git transfer and scaling
 
-Notes on how git moves objects between machines, how the git ecosystem has
-been stretched to cover very large repositories, and what the large monorepo
-systems built instead. This is source material, not a spec: what OpenScion
-actually does is defined in
+Notes on how git moves objects between machines, how it has been stretched
+for very large repositories, and what the big monorepo systems built instead.
+This is source material, not a spec: what OpenScion does is defined in
 [`../specs/openscion-architecture.md`](../specs/openscion-architecture.md) and
-its companion specs. Companion background on Scion itself is in
-[`scion.md`](scion.md).
-
-Facts come from git's [documentation](https://git-scm.com/docs) and from
-engineering write-ups by the teams named. Each section ends by naming where its
-cost grows with repository or history size.
+its companions; background on Scion is in [`scion.md`](scion.md). Facts come
+from git's [documentation](https://git-scm.com/docs) and the teams' own
+write-ups. Each section names where its cost grows with repository size.
 
 Two git repositories synchronize by working out which objects one side lacks
 and shipping them as a **packfile**: a stream of objects, many stored as deltas
@@ -28,11 +24,9 @@ cheaply, or avoids sending a pack at all.
 | Smart HTTP | `GET info/refs?service=git-upload-pack`, then `POST` to `git-upload-pack` or `git-receive-pack` | Stateless from the server's side; the default for hosted git |
 | Dumb HTTP | Plain `GET`s of static files (`info/refs`, loose objects by path, packs) | Needs no git-aware server; no negotiation at all |
 
-Sources: [gitprotocol-pack](https://git-scm.com/docs/gitprotocol-pack),
-[gitprotocol-http](https://git-scm.com/docs/gitprotocol-http).
-
-Over file, ssh, and git:// the protocol is a stateful conversation on one
-connection. Smart HTTP turns it into self-contained `POST`s: the server keeps
+Over file, ssh, and git:// the
+[pack protocol](https://git-scm.com/docs/gitprotocol-pack) is a stateful conversation on one
+connection. [Smart HTTP](https://git-scm.com/docs/gitprotocol-http) turns it into self-contained `POST`s: the server keeps
 no state between requests (so round-robin load balancing works), and each
 negotiation request repeats the wants and the haves already found common. A
 client tells smart from dumb by the `application/x-git-upload-pack-advertisement`
@@ -85,8 +79,8 @@ The motivation was the ref advertisement. Google's
 notes that Chromium had over 500,000 branches and tags, so a v0 fetch of one
 branch received tens of megabytes of advertisement first; with server-side ref
 filtering they measured a 3x improvement for no-op single-branch fetches and an
-8x reduction in non-packfile overhead bytes. v2 shipped in git 2.18 and became
-the default in 2.26 ([release notes](https://github.com/git/git/blob/master/Documentation/RelNotes/2.26.0.adoc)).
+8x reduction in non-packfile overhead bytes. v2 became the default in git
+2.26 ([release notes](https://github.com/git/git/blob/master/Documentation/RelNotes/2.26.0.adoc)).
 
 **v2 `fetch`** takes `want`, `have`, `done`, pack options (`thin-pack`,
 `ofs-delta`, `include-tag`), shallow controls (`shallow`, `deepen`,
@@ -180,15 +174,12 @@ and forbids deltas against a base not in all of an object's islands, trading
 slightly larger packs for reusable ones
 ([git-pack-objects](https://git-scm.com/docs/git-pack-objects#_delta_islands)).
 
-**Caching whole responses.** `uploadpack.packObjectsHook` makes upload-pack run
-a configured command in place of `git pack-objects`, feeding it the same input
-and expecting a pack on stdout. GitLab's Gitaly builds its
+**Caching whole responses.** `uploadpack.packObjectsHook` runs a configured
+command in place of `git pack-objects` with the same input. Gitaly's
 [pack-objects cache](https://gitlab.com/gitlab-org/gitaly/-/blob/master/doc/design_pack_objects_cache.md)
-on this hook: identical concurrent fetches, typically many CI jobs fetching the
-same commit, share one generated pack. The
-[admin docs](https://docs.gitlab.com/administration/gitaly/configure_gitaly/#pack-objects-cache)
-note it is off by default because it increases disk writes, keeps entries for
-5 minutes by default, and does little for unique fetches.
+uses it so identical concurrent fetches, typically CI jobs on one commit, share
+one pack. It is off by default, keeps entries 5 minutes, and does little for
+unique fetches ([docs](https://docs.gitlab.com/administration/gitaly/configure_gitaly/#pack-objects-cache)).
 
 **Bundle URIs.** A bundle is a pack plus a header of refs and prerequisites.
 With bundle URIs the server (via the v2 `bundle-uri` command) or the user (via
