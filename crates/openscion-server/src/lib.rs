@@ -2,9 +2,9 @@
 //!
 //! In the architecture (`docs/specs/openscion-architecture.md`) the server owns
 //! the changeset log, the refs, and the derived-data indexes, and is the only
-//! component that creates changesets or moves refs. Today it serves the
-//! discovery endpoints every client calls first; the API operations arrive
-//! with the phases that implement them in the engine.
+//! component that creates changesets or moves refs. The MVP serves the
+//! object, changeset, and ref operations over an in-memory
+//! [`openscion_core::Repository`]; a restart starts from an empty repository.
 //!
 //! # Endpoints
 //!
@@ -12,6 +12,13 @@
 //! | --- | --- | --- |
 //! | `GET` | `/healthz` | `200 ok` while the process is serving |
 //! | `GET` | `/v1/version` | [`ServerInfo`] as JSON |
+//! | `POST` | `/v1/blobs` | upload a batch of blob frames |
+//! | `POST` | `/v1/objects` | fetch a batch of trees and blobs as frames |
+//! | `POST` | `/v1/changesets` | create a changeset |
+//! | `GET` | `/v1/changesets/{id}` | read a changeset |
+//! | `GET`, `POST` | `/v1/refs/{name}` | read a ref, or move it by compare-and-swap |
+//!
+//! The `api` module documents each body and status code.
 //!
 //! # Entry points
 //!
@@ -38,10 +45,12 @@
 //! No source control logic. Hashing, validation, the log, and refs live in the
 //! `openscion-core` engine; this crate translates HTTP to engine calls and back.
 
+mod api;
 mod config;
 mod error;
 mod http;
 
+pub use api::{ApiError, MAX_BODY_BYTES, SharedRepository};
 pub use config::{DEFAULT_LISTEN, ServerConfig};
 pub use error::{Error, Result};
 pub use http::{Server, router, shutdown_signal};

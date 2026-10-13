@@ -1,32 +1,38 @@
 //! The HTTP surface: routes, the listener, and graceful shutdown.
 //!
-//! [`router`] is a plain [`axum::Router`], so it can be served by [`Server`] or
-//! embedded elsewhere. [`Server`] separates binding from serving so a caller —
+//! [`router`] is a plain [`axum::Router`] over a shared repository, so it can
+//! be served by [`Server`] or embedded elsewhere. [`Server`] separates binding from serving so a caller —
 //! a test, or the binary printing its address — learns the bound address
 //! before the first request arrives, even when it asked for port 0.
 
 use std::future::Future;
 use std::net::SocketAddr;
+use std::sync::{Arc, RwLock};
 
 use axum::routing::get;
 use axum::{Json, Router};
-use openscion_core::{PROTOCOL_VERSION, ServerInfo};
+use openscion_core::{PROTOCOL_VERSION, Repository, ServerInfo};
 use tokio::net::TcpListener;
 
-use crate::{Error, Result, ServerConfig};
+use crate::{Error, Result, ServerConfig, SharedRepository, api};
 
-/// Builds the server's HTTP routes.
+/// Builds the server's HTTP routes over `repository`.
 ///
 /// # Examples
 ///
 /// ```
-/// let app = openscion_server::router();
+/// use std::sync::{Arc, RwLock};
+/// use openscion_core::Repository;
+///
+/// let app = openscion_server::router(Arc::new(RwLock::new(Repository::new())));
 /// # let _ = app;
 /// ```
-pub fn router() -> Router {
+pub fn router(repository: SharedRepository) -> Router {
     Router::new()
         .route("/healthz", get(healthz))
         .route("/v1/version", get(version))
+        .merge(api::routes())
+        .with_state(repository)
 }
 
 async fn healthz() -> &'static str {
@@ -37,11 +43,12 @@ async fn version() -> Json<ServerInfo> {
     Json(ServerInfo::new(env!("CARGO_PKG_VERSION"), PROTOCOL_VERSION))
 }
 
-/// A bound, not-yet-serving server.
+/// A bound, not-yet-serving server with its own empty in-memory repository.
 #[derive(Debug)]
 pub struct Server {
     listener: TcpListener,
     local_addr: SocketAddr,
+    repository: SharedRepository,
 }
 
 impl Server {
@@ -60,6 +67,7 @@ impl Server {
         Ok(Self {
             listener,
             local_addr,
+            repository: Arc::new(RwLock::new(Repository::new())),
         })
     }
 
@@ -69,6 +77,12 @@ impl Server {
         self.local_addr
     }
 
+    /// The repository this server serves, shared with its handlers.
+    #[must_use]
+    pub fn repository(&self) -> SharedRepository {
+        Arc::clone(&self.repository)
+    }
+
     /// Serves [`router`] until `shutdown` resolves, then finishes in-flight
     /// requests and returns.
     ///
@@ -76,7 +90,7 @@ impl Server {
     ///
     /// Returns [`Error::Serve`] when the listener fails.
     pub async fn serve(self, shutdown: impl Future<Output = ()> + Send + 'static) -> Result<()> {
-        axum::serve(self.listener, router())
+        axum::serve(self.listener, router(self.repository))
             .with_graceful_shutdown(shutdown)
             .await
             .map_err(Error::Serve)
