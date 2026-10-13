@@ -7,9 +7,9 @@ use std::io::{self, Write};
 use clap::Parser;
 use openscion_core::PROTOCOL_VERSION;
 
-use super::{Cli, Command, DEFAULT_SERVER, run};
+use super::{Cli, Command, DEFAULT_AUTHOR, DEFAULT_REF, DEFAULT_SERVER, run};
 use crate::Error;
-use crate::test_support::{real_server, unreachable_server};
+use crate::test_support::{real_server, scratch, unreachable_server};
 
 fn output(cli: &Cli) -> String {
     let mut out = Vec::new();
@@ -94,4 +94,45 @@ fn a_failed_write_is_an_output_error() {
 
     let cli = Cli::try_parse_from(["scn", "--server", &real_server(), "server-info"]).unwrap();
     assert!(matches!(run(&cli, &mut BrokenPipe), Err(Error::Output(_))));
+}
+
+#[test]
+fn import_commit_and_clone_run_from_the_command_line() {
+    let base = real_server();
+    let source = scratch("cli-source");
+    std::fs::write(source.join("a.txt"), b"a").unwrap();
+    let dir = source.to_str().unwrap();
+
+    let cli = Cli::try_parse_from(["scn", "--server", &base, "import", dir]).unwrap();
+    assert!(output(&cli).starts_with("imported 1 files as "));
+
+    std::fs::write(source.join("b.txt"), b"b").unwrap();
+    let cli = Cli::try_parse_from(["scn", "commit", "-m", "add b", "--dir", dir]).unwrap();
+    assert!(output(&cli).starts_with("committed 1 changes as "));
+
+    let dest = scratch("cli-clone").join("copy");
+    let dest = dest.to_str().unwrap();
+    let cli =
+        Cli::try_parse_from(["scn", "--server", &base, "clone", dest, "--path", "b.txt"]).unwrap();
+    assert!(output(&cli).starts_with("cloned 1 files of "));
+}
+
+#[test]
+fn clone_rejects_an_invalid_path() {
+    let cli = Cli::try_parse_from(["scn", "clone", "x", "--path", "../up"]).unwrap();
+    assert!(matches!(run(&cli, &mut Vec::new()), Err(Error::Engine(_))));
+}
+
+#[test]
+fn commands_default_their_ref_and_author() {
+    let cli = Cli::try_parse_from(["scn", "import"]).unwrap();
+    assert_eq!(
+        cli.command,
+        Command::Import {
+            dir: ".".into(),
+            ref_name: DEFAULT_REF.to_owned(),
+            message: "import".to_owned(),
+            author: std::env::var("OPENSCION_AUTHOR").unwrap_or_else(|_| DEFAULT_AUTHOR.to_owned()),
+        }
+    );
 }
