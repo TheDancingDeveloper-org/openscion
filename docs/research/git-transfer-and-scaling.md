@@ -8,20 +8,15 @@ actually does is defined in
 its companion specs. Companion background on Scion itself is in
 [`scion.md`](scion.md).
 
-Facts below are taken from git's own protocol and technical documentation
-(the `Documentation/` tree, rendered at [git-scm.com/docs](https://git-scm.com/docs))
-and from engineering write-ups by the teams named. Each section ends by naming
-where its cost grows with repository or history size.
+Facts come from git's [documentation](https://git-scm.com/docs) and from
+engineering write-ups by the teams named. Each section ends by naming where its
+cost grows with repository or history size.
 
-## The shape of the problem
-
-A git repository is a content-addressed graph of commits, trees, blobs, and
-tags. Two repositories synchronize by working out which objects one side lacks
+Two git repositories synchronize by working out which objects one side lacks
 and shipping them as a **packfile**: a stream of objects, many stored as deltas
-against other objects in the same pack (or, in a *thin pack*, against objects
-the receiver is known to have). Everything else in this document is either a
-way to decide which objects to send, a way to build the pack cheaply, or a way
-to avoid sending a pack at all.
+against others in the pack (or, in a *thin pack*, against objects the receiver
+already has). Everything below decides which objects to send, builds the pack
+cheaply, or avoids sending a pack at all.
 
 ## Transports
 
