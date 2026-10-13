@@ -18,11 +18,15 @@ fn fetch_and_store_carry_a_list_of_ids() {
         expected
     );
     assert_eq!(
-        serde_json::from_value::<FetchObjects>(expected.clone()).unwrap().ids,
+        serde_json::from_value::<FetchObjects>(expected.clone())
+            .unwrap()
+            .ids,
         [id]
     );
     assert_eq!(
-        serde_json::from_value::<StoredObjects>(expected).unwrap().ids,
+        serde_json::from_value::<StoredObjects>(expected)
+            .unwrap()
+            .ids,
         [id]
     );
 }

@@ -73,12 +73,14 @@ pub fn decode_tree(mut bytes: &[u8]) -> Result<Vec<TreeEntry>> {
             .iter()
             .position(|&byte| byte == 0)
             .ok_or_else(|| malformed("unterminated name"))?;
-        let name =
-            std::str::from_utf8(&rest[..nul]).map_err(|_| malformed("name is not UTF-8"))?;
+        let name = std::str::from_utf8(&rest[..nul]).map_err(|_| malformed("name is not UTF-8"))?;
         if name.contains('/') || RepoPath::new(name).is_err() {
             return Err(malformed("invalid entry name"));
         }
-        if entries.last().is_some_and(|last| last.name.as_str() >= name) {
+        if entries
+            .last()
+            .is_some_and(|last| last.name.as_str() >= name)
+        {
             return Err(malformed("entries out of order"));
         }
         let rest = &rest[nul + 1..];

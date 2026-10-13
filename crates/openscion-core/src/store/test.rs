@@ -44,7 +44,9 @@ fn verified_puts_reject_a_mismatched_id() {
     );
     assert!(store.is_empty());
     let right = object_id(ObjectKind::Blob, b"hello");
-    store.put_verified(ObjectKind::Blob, right, b"hello").unwrap();
+    store
+        .put_verified(ObjectKind::Blob, right, b"hello")
+        .unwrap();
     assert!(store.contains(right));
 }
 

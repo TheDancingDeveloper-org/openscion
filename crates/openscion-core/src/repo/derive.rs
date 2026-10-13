@@ -49,7 +49,13 @@ pub(super) fn derive_root_tree(
     for change in changes {
         if let Change::Upsert { path, kind, blob } = change {
             let components: Vec<_> = path.components().collect();
-            upsert(objects, &mut root, &components, (*kind, *blob), path.as_str())?;
+            upsert(
+                objects,
+                &mut root,
+                &components,
+                (*kind, *blob),
+                path.as_str(),
+            )?;
         }
     }
     Ok(write(objects, root).unwrap_or_else(|| objects.put(ObjectKind::Tree, &[])))
@@ -108,7 +114,8 @@ fn delete(
             None => Err(invalid(path, "deletes a missing file")),
         };
     }
-    let child = subdir(objects, node, name)?.ok_or_else(|| invalid(path, "deletes a missing file"))?;
+    let child =
+        subdir(objects, node, name)?.ok_or_else(|| invalid(path, "deletes a missing file"))?;
     delete(objects, child, rest, path)?;
     if child.entries.is_empty() {
         node.entries.remove(*name);

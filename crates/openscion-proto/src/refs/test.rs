@@ -26,5 +26,8 @@ fn update_ref_encodes_an_absent_expectation_as_null() {
         encoded,
         serde_json::json!({ "expected": null, "new": id.to_string() })
     );
-    assert_eq!(serde_json::from_value::<UpdateRef>(encoded).unwrap(), update);
+    assert_eq!(
+        serde_json::from_value::<UpdateRef>(encoded).unwrap(),
+        update
+    );
 }

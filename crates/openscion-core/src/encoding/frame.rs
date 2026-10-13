@@ -37,7 +37,8 @@ impl FrameWriter {
     pub fn push(&mut self, id: ObjectId, bytes: &[u8]) {
         self.out.reserve(HEADER + bytes.len());
         self.out.extend_from_slice(id.as_bytes());
-        self.out.extend_from_slice(&(bytes.len() as u64).to_be_bytes());
+        self.out
+            .extend_from_slice(&(bytes.len() as u64).to_be_bytes());
         self.out.extend_from_slice(bytes);
     }
 

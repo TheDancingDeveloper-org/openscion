@@ -20,7 +20,9 @@ use openscion_proto::{
     ObjectKind, RefValue, RepoPath, TreeEntry, UpdateRef,
 };
 
-use crate::{Clock, Error, MemoryObjectStore, Result, SystemClock, decode_tree, encode_changeset, object_id};
+use crate::{
+    Clock, Error, MemoryObjectStore, Result, SystemClock, decode_tree, encode_changeset, object_id,
+};
 use types::LogEntry;
 
 /// The most changes one changeset may carry.

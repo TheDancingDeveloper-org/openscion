@@ -48,7 +48,10 @@ fn create_request_defaults_its_metadata() {
         "parents": [], "changes": [], "author": "agent", "message": "init"
     }))
     .unwrap();
-    assert_eq!(decoded, CreateChangeset::new(vec![], vec![], "agent", "init"));
+    assert_eq!(
+        decoded,
+        CreateChangeset::new(vec![], vec![], "agent", "init")
+    );
 }
 
 #[test]

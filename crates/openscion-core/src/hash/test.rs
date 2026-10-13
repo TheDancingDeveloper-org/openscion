@@ -17,7 +17,10 @@ fn hashes_the_header_and_payload() {
 #[test]
 fn the_empty_tree_has_a_fixed_id() {
     let expected = blake3::hash(b"tree 0\0");
-    assert_eq!(object_id(ObjectKind::Tree, b"").as_bytes(), expected.as_bytes());
+    assert_eq!(
+        object_id(ObjectKind::Tree, b"").as_bytes(),
+        expected.as_bytes()
+    );
 }
 
 #[test]

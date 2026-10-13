@@ -4,7 +4,9 @@
 
 use std::collections::BTreeMap;
 
-use openscion_proto::{Change, Changeset, CreateChangeset, EntryKind, ObjectId, RepoPath, TreeEntry};
+use openscion_proto::{
+    Change, Changeset, CreateChangeset, EntryKind, ObjectId, RepoPath, TreeEntry,
+};
 
 use super::{FrameWriter, decode_frames, decode_tree, encode_changeset, encode_tree};
 use crate::Error;
@@ -30,7 +32,12 @@ fn tree_encoding_matches_the_spec_layout() {
     ];
     let bytes = encode_tree(&entries);
     let mut expected = Vec::new();
-    for (kind, name, byte) in [(b'f', b'a', 1), (b'x', b'b', 2), (b'l', b'c', 3), (b'd', b'd', 4)] {
+    for (kind, name, byte) in [
+        (b'f', b'a', 1),
+        (b'x', b'b', 2),
+        (b'l', b'c', 3),
+        (b'd', b'd', 4),
+    ] {
         expected.extend_from_slice(&[kind, name, 0]);
         expected.extend_from_slice(&[byte; 32]);
     }
