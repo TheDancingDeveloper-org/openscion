@@ -9,8 +9,13 @@
 //!
 //! # What is here
 //!
-//! - [`greeting`] — a placeholder payload family kept from the project
-//!   template. Phase 1 replaces it with object ids, changesets, and refs.
+//! - [`object`] — [`ObjectId`], the content-derived name of every object.
+//! - [`path`] — [`RepoPath`], a validated path relative to the repository root.
+//! - [`tree`] — [`TreeEntry`] and [`EntryKind`], what one directory holds.
+//! - [`changeset`] — [`CreateChangeset`], [`Changeset`], and their summaries.
+//! - [`refs`] — [`RefValue`] and the compare-and-swap [`UpdateRef`].
+//! - [`transfer`] — the JSON halves of batched object upload and fetch.
+//! - [`failure`] — [`ErrorBody`], what every failed request carries.
 //! - [`server`] — [`ServerInfo`], what a server reports about itself.
 //! - [`version`] — [`PROTOCOL_VERSION`] and the [`is_compatible`] bind rule.
 //!
@@ -28,30 +33,44 @@
 //! # This crate sits underneath the engine, not beside it
 //!
 //! `openscion-core` **depends on this crate and re-exports all of it**, so
-//! `openscion_core::GreetRequest` and `openscion_proto::greeting::GreetRequest` are
+//! `openscion_core::ObjectId` and `openscion_proto::object::ObjectId` are
 //! the *same type*, not structural twins. A parallel set of payload types for
 //! clients would mean a conversion at every call site that nothing checks.
 //!
 //! # Example
 //!
 //! ```
-//! use openscion_proto::{GreetRequest, GreetResponse, PROTOCOL_VERSION, is_compatible};
+//! use openscion_proto::{CreateChangeset, PROTOCOL_VERSION, RefValue, is_compatible};
 //!
-//! let body = serde_json::to_value(GreetRequest::new("Ferris"))?;
-//! assert_eq!(body, serde_json::json!({ "name": "Ferris" }));
+//! let body: CreateChangeset = serde_json::from_value(serde_json::json!({
+//!     "parents": [], "changes": [], "author": "agent", "message": "init"
+//! }))?;
+//! assert_eq!(body.author, "agent");
 //! assert!(is_compatible(PROTOCOL_VERSION));
 //!
-//! let reply: GreetResponse = serde_json::from_value(
-//!     serde_json::json!({ "greeting": "Hello, Ferris!" }),
-//! )?;
-//! assert_eq!(reply.greeting, "Hello, Ferris!");
+//! let main: RefValue = serde_json::from_value(serde_json::json!({
+//!     "name": "main", "target": "ab".repeat(32), "version": 1
+//! }))?;
+//! assert_eq!(main.version, 1);
 //! # Ok::<(), serde_json::Error>(())
 //! ```
 
-pub mod greeting;
+pub mod changeset;
+pub mod failure;
+pub mod object;
+pub mod path;
+pub mod refs;
 pub mod server;
+pub mod transfer;
+pub mod tree;
 pub mod version;
 
-pub use greeting::{GreetRequest, GreetResponse};
+pub use changeset::{Change, Changeset, ChangesetInfo, ChangesetRecord, CreateChangeset};
+pub use failure::ErrorBody;
+pub use object::{ObjectId, ObjectKind, ParseIdError};
+pub use path::{PathError, RepoPath};
+pub use refs::{RefValue, UpdateRef};
 pub use server::ServerInfo;
+pub use transfer::{FetchObjects, StoredObjects};
+pub use tree::{EntryKind, TreeEntry};
 pub use version::{PROTOCOL_VERSION, is_compatible};

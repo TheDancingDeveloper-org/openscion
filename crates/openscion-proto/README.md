@@ -10,7 +10,7 @@ needs the vocabulary, not the engine. This crate is the vocabulary.
 
 | module     | what it holds                                                  |
 | ---------- | -------------------------------------------------------------- |
-| `greeting` | placeholder payloads from the project template, until phase 1  |
+| `object`, `path`, `tree`, `changeset`, `refs`, `transfer`, `failure` | the phase-1 data model payloads |
 | `version`  | `PROTOCOL_VERSION` and the bind rule a client applies to it    |
 
 Two dependencies, both pure Rust: `serde` and `serde_json`.
