@@ -449,8 +449,10 @@ OpenScion:
   the files touched do not overlap, instead of rejecting the push
   ([pushrebase](https://github.com/facebook/sapling/blob/main/eden/mononoke/docs/4.1-pushrebase.md)).
 
-Microsoft, by contrast, kept git's object model (VFS for Git, then Scalar,
-above). It shows how far git can be pushed and where it stops: the commit
+### Microsoft
+
+Microsoft kept git's object model and changed what clients transfer (VFS
+for Git, then Scalar, above). It shows how far git can be pushed and where it stops: the commit
 graph, trees, and maintenance remain every client's problem.
 
 ## Where cost scales: summary
