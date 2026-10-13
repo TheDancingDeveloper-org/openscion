@@ -1,0 +1,34 @@
+[package]
+name = "openscion-server"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "The OpenScion server: the authoritative tier that serves the OpenScion API over HTTP."
+documentation = "https://docs.rs/openscion-server"
+readme = "README.md"
+keywords = ["vcs", "source-control", "monorepo", "server"]
+categories = ["development-tools"]
+publish = false
+
+[[bin]]
+name = "openscion-server"
+path = "src/main.rs"
+
+[dependencies]
+# The engine and, through its re-export, the protocol payloads this server
+# answers with.
+openscion = { workspace = true }
+axum = { workspace = true }
+clap = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+
+[dev-dependencies]
+# The integration tests call a running server over real HTTP.
+ureq = { workspace = true }
+serde_json = { workspace = true }
+
+[lints]
+workspace = true
