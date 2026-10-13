@@ -106,21 +106,15 @@ but does not change negotiation or pack generation.
 The client must tell the server what it already has so the server can avoid
 resending it ([gitprotocol-pack](https://git-scm.com/docs/gitprotocol-pack)):
 
-1. The client sends `want` lines for the tips it needs, then a flush.
-2. It walks its own history from its tips and sends `have` lines in blocks of
-   32, keeping a block in flight.
-3. The server replies `ACK <oid>` for each have it also has. With
-   `multi_ack_detailed` it says `ACK <oid> common` and, once it can build a
-   good pack, `ACK <oid> ready`; `NAK` means nothing common yet.
-4. The client stops walking a line of history once a commit is acknowledged
-   common, and sends `done` when satisfied. The canonical client gives up
-   after 256 haves with no new ACK (once at least one ACK has arrived).
-5. The server computes "everything reachable from the wants, minus everything
-   reachable from the common haves" and streams the pack.
-
-`no-done` (smart HTTP with `multi_ack_detailed`) lets the server send the pack
-right after `ready`, saving a round trip. In v2, `wait-for-done` forces the
-opposite.
+1. The client sends `want` lines, then walks its own history and sends
+   `have` lines in blocks of 32, keeping a block in flight.
+2. The server answers `ACK <oid> common` for haves it shares, `ACK <oid>
+   ready` once it can build a good pack (`multi_ack_detailed`), or `NAK`.
+3. The client stops walking a line once it is acknowledged, and sends `done`
+   when satisfied; the canonical client gives up after 256 haves with no new
+   ACK. `no-done` lets the server send the pack right after `ready`.
+4. The server sends everything reachable from the wants minus everything
+   reachable from the common haves.
 
 **Negotiation algorithms.** `fetch.negotiationAlgorithm` selects how the client
 picks haves ([fetch config](https://git-scm.com/docs/git-config#Documentation/git-config.txt-fetchnegotiationAlgorithm)):
@@ -131,8 +125,7 @@ picks haves ([fetch config](https://git-scm.com/docs/git-config#Documentation/gi
 | `skipping` | Skip commits to converge in fewer round trips, at the risk of a larger-than-necessary pack. In [`negotiator/skipping.c`](https://github.com/git/git/blob/master/negotiator/skipping.c) the gap grows by about 1.5x at each step. Default under `feature.experimental`. Added in git 2.19. |
 | `noop` | Send no haves; skip negotiation and accept a larger pack |
 
-`git fetch --negotiation-tip` (also 2.19) limits which local refs contribute
-haves, which helps when a client has many unrelated refs.
+`git fetch --negotiation-tip` (also 2.19) limits which local refs send haves.
 
 **Why negotiation cost grows.** The client walks its own commit graph and the
 server must look up every have; the number of rounds depends on how far the
@@ -144,14 +137,11 @@ cacheable across clients, because each client's have set is different.
 
 ## Push
 
-`git push` runs `receive-pack` on the server. The server advertises refs and
-capabilities (`report-status`, `report-status-v2`, `delete-refs`, `ofs-delta`,
-`atomic`, `push-options`, `push-cert=<nonce>`). The client sends one command
-per ref, `old-id new-id refname` (zero id for create or delete), then a pack
-containing what the server lacks; a pack must be sent for any create or update,
-even if empty. The server unpacks it, checks each `old-id` still matches, runs
-hooks, updates refs, and reports `ok` or `ng <ref> <reason>` per ref.
-Receive-pack accepts thin packs unless it advertises `no-thin`.
+`git push` runs `receive-pack`, which advertises refs and capabilities. The
+client sends `old-id new-id refname` per ref (zero id to create or delete),
+then a pack (thin by default) of what the server lacks. The server unpacks it,
+checks each `old-id` still matches, runs hooks, updates refs, and reports `ok`
+or `ng <ref> <reason>` per ref.
 
 With `atomic`, all ref updates happen in one transaction, all or none. With
 `push-cert`, the command list is wrapped in a GPG-signed certificate naming the
@@ -179,10 +169,8 @@ took under 3 ms, the index cost 5 to 10% of repository size, and average CPU
 time on git network operations fell by more than 90%. The work shipped in
 git 2.0. `repack.writeBitmaps` defaults to true on bare repositories.
 
-**Pack reuse.** When bitmaps are available, `pack.allowPackReuse` lets
-pack-objects send parts of an existing on-disk pack verbatim instead of
-re-encoding objects (`multi` extends this across packs in a multi-pack index).
-Reusing stored deltas also avoids inflating objects at all.
+**Pack reuse.** With bitmaps, `pack.allowPackReuse` sends parts of an on-disk
+pack verbatim (`multi`: across a multi-pack index), avoiding re-encoding.
 
 **Delta islands.** Reuse fails when an on-disk delta's base is something the
 client will not receive; the server must "break" the delta and search for a new
@@ -249,11 +237,9 @@ matching objects, and the client fetches them later on demand
 | `blob:limit=<n>` | Omit blobs of at least n bytes |
 | `tree:<depth>` | Omit trees and blobs at depth >= n from the root; `tree:0` is a "treeless" clone |
 | `sparse:oid=<blob>` | Omit blobs outside the sparse-checkout patterns stored in that blob |
-| `object:type=<t>` | Keep only one object type |
-| `combine:a+b` | Intersection of several filters |
 
-Servers enable filtering with `uploadpack.allowFilter` and can allow or ban
-each filter individually.
+`object:type` and `combine:` also exist. Servers opt in with
+`uploadpack.allowFilter` and can ban filters individually.
 
 **Promisor remotes and lazy fetch.** Packs received under a filter are marked
 with a `.promisor` file; any object they reference but do not contain is
