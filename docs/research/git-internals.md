@@ -468,7 +468,7 @@ The OpenScion spec keeps git's content addressing and replaces most of the rest
 | Reflogs | Not specified; each ref carries a `version` that increases on every move. |
 | `git commit` writes the commit and moves the branch ref in one step | Appending a changeset to the log never reads or writes a ref. |
 | Merge and rebase on the client, with `merge-tree` and `replay` as server-side building blocks | Merges and rebases run on the server and cost the size of the change. |
-| Index, split and sparse index, untracked cache, fsmonitor | The client `scn` keeps a sparse working copy and a filesystem watcher. The server never needs an index. |
+| Index, split and sparse index, untracked cache, fsmonitor | The client `opnscn` keeps a sparse working copy and a filesystem watcher. The server never needs an index. |
 | Sparse checkout limits files, not objects | The client fetches only the trees and blobs under the paths it needs, so sparse checkout needs no protocol support. |
 | Worktrees and submodules | Not modelled in the data model. |
 

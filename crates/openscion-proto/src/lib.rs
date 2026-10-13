@@ -3,7 +3,7 @@
 //! OpenScion is a server-centric source control system: the server owns history
 //! and computes commits, rebases, and queries, while clients fetch exactly the
 //! objects they need. Every component — the engine, the node daemon, the
-//! regional cache, the server, and the `scn` client — speaks the same API. This
+//! regional cache, the server, and the `opnscn` client — speaks the same API. This
 //! crate is that API's vocabulary, so a tool that only makes calls depends on
 //! it alone. See `docs/specs/openscion-api.md` for the operations it carries.
 //!

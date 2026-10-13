@@ -94,7 +94,7 @@ These are carried over from Scion, each with what it means here.
 ```text
           agents · CI jobs · humans
                     │
-             scn (client CLI)  ── working copy, fs watcher, bounded cache
+             opnscn (client CLI)  ── working copy, fs watcher, bounded cache
                     │  local RPC (Unix socket)
           openscion-daemon     ── one per node; node-wide object store
                     │  network RPC (same contract)
@@ -123,7 +123,7 @@ every job on that machine. It boots from a periodically refreshed snapshot of
 recently used objects so that a fresh node does not start cold, and serves local
 clients over a Unix socket.
 
-**`scn`** — the client. It lays out a (possibly sparse) working copy, watches it
+**`opnscn`** — the client. It lays out a (possibly sparse) working copy, watches it
 for edits, uploads new blobs, asks the server to create changesets, and offers
 `log`, `diff`, `blame`, `land`, and friends as thin wrappers over the API.
 
@@ -159,7 +159,7 @@ cross-record transaction, which is what lets the metadata store shard.
 
 - `crates/openscion-proto` holds every payload type that crosses a process
   boundary — object ids, changesets, refs, requests, responses, and the
-  protocol version — with no transport, no runtime, and no behavior. `scn`, the
+  protocol version — with no transport, no runtime, and no behavior. `opnscn`, the
   daemon, the cache, the GUI's backend calls, and any third-party tool speak
   it.
 - `crates/openscion-core` holds the engine: hashing, the data model, the log
@@ -169,7 +169,7 @@ cross-record transaction, which is what lets the metadata store shard.
 - `crates/openscion-server` serves the engine as an HTTP JSON API. HTTP is the
   initial transport because the GUI and most tools already speak it; the
   open question below is whether tier-to-tier traffic keeps it.
-- `crates/openscion` is `scn`, the CLI, published to crates.io as `openscion`.
+- `crates/openscion` is `opnscn`, the CLI, published to crates.io as `openscion`.
 - `apps/web` is the web GUI (Next.js and shadcn/ui). It renders on the server
   side and calls `openscion-server` like any other client.
 - `benchmarks/` times the same scenarios against OpenScion and git on
@@ -207,7 +207,7 @@ each builds on the one before.
    path validation, changesets, the in-memory log and ref store, root-tree
    derivation, and the in-process API for the basic reads and writes. The
    [core data model plan](../plans/openscion-data-model.md) delivers this
-   phase in memory, with the server routes and `scn` import, commit, and clone
+   phase in memory, with the server routes and `opnscn` import, commit, and clone
    on top.
 2. **Derived data and queries.** The derived-data framework, generation numbers
    and first-parent skip lists, path history, `Log`, `Diff`, `MergeBase`,
@@ -216,7 +216,7 @@ each builds on the one before.
    ref compare-and-swap, `Revert`, and file-level conflict reporting.
 4. **Persistent stores.** Filesystem `ObjectStore`, SQLite `MetadataStore`, and
    crash-recovery tests for the log and refs.
-5. **Client and daemon.** `scn` with sparse checkout, status via a filesystem
+5. **Client and daemon.** `opnscn` with sparse checkout, status via a filesystem
    watcher, commit, and land; the daemon's node-local store and snapshot boot.
 6. **Git ingestion.** First-parent import of an existing git repository.
 7. **Network tiers.** The inter-machine transport, the regional cache, load

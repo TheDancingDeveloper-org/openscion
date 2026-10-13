@@ -10,7 +10,7 @@ Scion, in
 
 ## Benchmarks
 
-OpenScion — an in-memory server and the `scn` client — against git on
+OpenScion — an in-memory server and the `opnscn` client — against git on
 synthetic repositories of 4 KiB files (`cargo run -p openscion-benchmarks
 --release`):
 
@@ -56,7 +56,7 @@ from it except operational cost.
 ## Architecture
 
 ```text
- scn (client) ──► openscion-daemon ──► openscion-cache ──► openscion-server
+ opnscn (client) ──► openscion-daemon ──► openscion-cache ──► openscion-server
  working copy     one per node         regional,           log, refs,
  fs watcher       node-wide objects    immutable objects   derived data
                                                               │
@@ -88,7 +88,7 @@ crates/
 ├── openscion-proto/   # the protocol: payload types and the protocol version
 ├── openscion-core/    # the engine: data model, stores, derived data, rebase
 ├── openscion-server/  # openscion-server: the HTTP API over the engine
-└── openscion/         # scn, the command-line client (crates.io: openscion)
+└── openscion/         # opnscn, the command-line client (crates.io: openscion)
 benchmarks/            # openscion-bench: OpenScion vs git on synthetic repos
 apps/web/              # the web GUI (Next.js + shadcn/ui)
 docs/
@@ -107,13 +107,13 @@ types. The server, the CLI, and the GUI all speak that one API.
 
 ```sh
 cargo run -p openscion-server                 # serves http://127.0.0.1:7878
-cargo run -p openscion -- server-info         # scn: ask the server who it is
+cargo run -p openscion -- server-info         # opnscn: ask the server who it is
 cd apps/web && pnpm install && pnpm dev       # GUI on http://localhost:3000
 cargo run -p openscion-benchmarks --release   # time the scenarios against git
 ```
 
 Install the client from crates.io with `cargo install openscion`, which
-provides the `scn` binary.
+provides the `opnscn` binary.
 
 ## Development
 

@@ -32,8 +32,8 @@ pub enum Error {
         /// What the command printed to standard error.
         stderr: String,
     },
-    /// An `scn` command failed.
-    #[error("scn: {0}")]
+    /// An `opnscn` command failed.
+    #[error("opnscn: {0}")]
     OpenScion(#[from] openscion::Error),
     /// The in-process OpenScion server could not be started.
     #[error("cannot start openscion-server: {0}")]

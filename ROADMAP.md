@@ -12,7 +12,7 @@ This page tracks where things stand.
 - **Core data model** ([plan](docs/plans/openscion-data-model.md)): object ids, paths, trees,
   changesets, the in-memory log and compare-and-swap refs, root-tree
   derivation by path copying; the server's object, changeset, and ref routes;
-  `scn import`, `commit`, and `clone` (including one-directory clones); and an
+  `opnscn import`, `commit`, and `clone` (including one-directory clones); and an
   OpenScion backend in `openscion-bench`.
 
 ## Next
@@ -24,7 +24,7 @@ This page tracks where things stand.
 
 ## Later
 
-Persistent stores, the `scn` client and node daemon, git ingestion, network
+Persistent stores, the `opnscn` client and node daemon, git ingestion, network
 tiers, line-level blame and merge, virtual checkouts, read access control.
 
 ## Out Of Scope

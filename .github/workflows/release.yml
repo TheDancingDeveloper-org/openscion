@@ -221,7 +221,7 @@ jobs:
     needs: prepare
     runs-on: ubuntu-latest
     steps:
-      # No binaries are attached yet; `scn` installs from crates.io with
+      # No binaries are attached yet; `opnscn` installs from crates.io with
       # `cargo install openscion`. Prebuilt server and client packages arrive in
       # later phases (see docs/specs/openscion-architecture.md).
       - name: Create release

@@ -3,7 +3,7 @@
 Every payload type that crosses an OpenScion process boundary, and the protocol
 version that governs them.
 
-OpenScion's engine, node daemon, regional cache, server, and `scn` client all
+OpenScion's engine, node daemon, regional cache, server, and `opnscn` client all
 speak one API (see [`docs/specs/openscion-api.md`](../../docs/specs/openscion-api.md)).
 A tool that only makes calls — a CI job, a review bot, a bisect pipeline —
 needs the vocabulary, not the engine. This crate is the vocabulary.

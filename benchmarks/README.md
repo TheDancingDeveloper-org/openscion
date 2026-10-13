@@ -22,10 +22,10 @@ cargo run -p openscion-benchmarks --release -- --directories 50 --files-per-dire
 
 | Scenario | git | OpenScion |
 | --- | --- | --- |
-| `import` | `init` + `add -A` + `commit` | `scn import`: hash, upload blobs, create the root changeset, create `main` |
-| `commit-one-file` | `commit -a` after changing one file | `scn commit` after changing one file |
-| `full-clone` | `clone --no-local` | `scn clone`: trees level by level, then blobs in batches |
-| `sparse-clone` | partial clone (`--filter=blob:none --sparse`) + `sparse-checkout set dir0000` | `scn clone --path dir0000` |
+| `import` | `init` + `add -A` + `commit` | `opnscn import`: hash, upload blobs, create the root changeset, create `main` |
+| `commit-one-file` | `commit -a` after changing one file | `opnscn commit` after changing one file |
+| `full-clone` | `clone --no-local` | `opnscn clone`: trees level by level, then blobs in batches |
+| `sparse-clone` | partial clone (`--filter=blob:none --sparse`) + `sparse-checkout set dir0000` | `opnscn clone --path dir0000` |
 
 Setup a scenario does not measure — writing the fixture, the import a commit or
 clone starts from, starting the server — runs before the clock starts. Both
@@ -55,16 +55,16 @@ would show:
 - **No disk on the OpenScion side.** The server keeps every object in memory
   and never fsyncs or compresses. Git zlib-compresses every object and writes
   it to its object store. Most of the `import` gap is this.
-- **No process starts for `scn`.** The OpenScion backend runs the server and
-  `scn` in this process, over real loopback HTTP. Git pays a process start for
+- **No process starts for `opnscn`.** The OpenScion backend runs the server and
+  `opnscn` in this process, over real loopback HTTP. Git pays a process start for
   every command (about a millisecond each; `import` runs three).
 - **No packing.** `git clone` builds and indexes a pack with delta compression,
-  so it moves fewer bytes; `scn clone` ships raw objects. On a real network,
+  so it moves fewer bytes; `opnscn clone` ships raw objects. On a real network,
   where bytes cost more than CPU, the full-clone gap would narrow or flip.
 - **Git's racily-clean index.** In `commit-one-file` on the small fixture,
   every file was written in the same second as git's index, so `commit -a`
   re-hashes them all. On the large fixture the import takes long enough that
-  it does not, and git is as fast as `scn` — whose JSON state file costs more
+  it does not, and git is as fast as `opnscn` — whose JSON state file costs more
   than git's binary index once there are 10,000 entries.
 
 What holds up despite the caveats is the shape. A sparse clone fetches only

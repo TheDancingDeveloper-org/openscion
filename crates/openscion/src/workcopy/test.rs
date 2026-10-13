@@ -15,14 +15,14 @@ use crate::test_support::scratch;
 fn scan_lists_files_sorted_and_skips_the_state_directory() {
     let root = scratch("scan");
     fs::create_dir_all(root.join("b/c")).unwrap();
-    fs::create_dir_all(root.join(".scn")).unwrap();
+    fs::create_dir_all(root.join(".opnscn")).unwrap();
     fs::write(root.join("b/c/d.txt"), b"d").unwrap();
     fs::write(root.join("a.txt"), b"aa").unwrap();
-    fs::write(root.join(".scn/state.json"), b"{}").unwrap();
-    fs::create_dir_all(root.join("x/.scn")).unwrap();
-    fs::write(root.join("x/.scn/kept"), b"").unwrap();
+    fs::write(root.join(".opnscn/state.json"), b"{}").unwrap();
+    fs::create_dir_all(root.join("x/.opnscn")).unwrap();
+    fs::write(root.join("x/.opnscn/kept"), b"").unwrap();
     let paths: Vec<_> = scan(&root).unwrap().into_iter().map(|f| f.path).collect();
-    assert_eq!(paths, ["a.txt", "b/c/d.txt", "x/.scn/kept"]);
+    assert_eq!(paths, ["a.txt", "b/c/d.txt", "x/.opnscn/kept"]);
 }
 
 #[cfg(unix)]
@@ -74,13 +74,13 @@ fn state_round_trips_and_stamps_its_write_time() {
 fn loading_a_missing_or_corrupt_state_fails() {
     let root = scratch("bad-state");
     assert!(matches!(load(&root), Err(Error::NotAWorkingCopy(_))));
-    fs::create_dir_all(root.join(".scn")).unwrap();
-    fs::write(root.join(".scn/state.json"), b"not json").unwrap();
+    fs::create_dir_all(root.join(".opnscn")).unwrap();
+    fs::write(root.join(".opnscn/state.json"), b"not json").unwrap();
     let error = load(&root).unwrap_err();
     assert!(matches!(error, Error::BadState { .. }));
     assert!(error.to_string().contains("corrupt working-copy state"));
-    fs::remove_file(root.join(".scn/state.json")).unwrap();
-    fs::create_dir(root.join(".scn/state.json")).unwrap();
+    fs::remove_file(root.join(".opnscn/state.json")).unwrap();
+    fs::create_dir(root.join(".opnscn/state.json")).unwrap();
     assert!(matches!(load(&root), Err(Error::Io { .. })));
 }
 

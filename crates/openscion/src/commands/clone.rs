@@ -1,4 +1,4 @@
-//! `scn clone`: materialize a snapshot, or one directory of it.
+//! `opnscn clone`: materialize a snapshot, or one directory of it.
 
 use std::collections::{BTreeMap, HashSet};
 use std::path::Path;

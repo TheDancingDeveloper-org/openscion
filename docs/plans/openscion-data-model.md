@@ -9,7 +9,7 @@
 
 The smallest end-to-end OpenScion that does real work and can be timed against
 git: content-addressed blobs and trees, changesets in an append-only log, refs
-moved by compare-and-swap, a server holding all of it, and an `scn` client that
+moved by compare-and-swap, a server holding all of it, and an `opnscn` client that
 imports, commits, and clones — including a one-directory clone.
 
 ## Non-goals
@@ -44,15 +44,15 @@ Every task was test-first: the failing test, then the code that passes it.
    `POST /v1/objects`, `POST /v1/changesets`, `GET /v1/changesets/{id}`, and
    `GET`/`POST /v1/refs/{name}`, over a shared in-memory repository, with
    `404` / `409` / `400` and an `ErrorBody`. Tested over a real socket.
-5. **Client** — `crates/openscion/src/{client,workcopy,commands}/`. `scn
-   import`, `scn commit`, `scn clone [--path DIR]`. A working copy records
-   each file's blob id and stat data in `.scn/state.json`, so a commit
+5. **Client** — `crates/openscion/src/{client,workcopy,commands}/`. `opnscn
+   import`, `opnscn commit`, `opnscn clone [--path DIR]`. A working copy records
+   each file's blob id and stat data in `.opnscn/state.json`, so a commit
    re-reads only files whose size or modification time changed. Files
    modified at or after the state was written are re-read anyway, the same
    racily-clean rule git applies to its index. Clone walks trees breadth
    first, one request per level, and verifies every fetched id.
 6. **Benchmarks** — `benchmarks/src/openscion/`. The OpenScion backend runs
-   the server and `scn` in-process. A new `sparse-clone` scenario fetches one
+   the server and `opnscn` in-process. A new `sparse-clone` scenario fetches one
    top-level directory, and the report puts the two backends side by side.
 
 ## Verification
@@ -74,7 +74,7 @@ cargo run -p openscion-server &
 cargo run -p openscion -- import path/to/tree
 echo change >> path/to/tree/README.md
 cargo run -p openscion -- commit -m "edit" --dir path/to/tree
-cargo run -p openscion -- clone /tmp/copy && diff -r -x .scn path/to/tree /tmp/copy
+cargo run -p openscion -- clone /tmp/copy && diff -r -x .opnscn path/to/tree /tmp/copy
 ```
 
 ## Checklist
@@ -83,5 +83,5 @@ cargo run -p openscion -- clone /tmp/copy && diff -r -x .scn path/to/tree /tmp/c
 - [x] Hashing, canonical encodings, frames
 - [x] Repository: validity rules, path-copying derivation, CAS refs
 - [x] Server routes and error mapping
-- [x] `scn import` / `commit` / `clone`, sparse clone
+- [x] `opnscn import` / `commit` / `clone`, sparse clone
 - [x] OpenScion benchmark backend and `sparse-clone` scenario

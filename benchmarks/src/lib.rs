@@ -12,7 +12,7 @@
 //! # Backends
 //!
 //! - [`git`] drives the `git` command-line tool, which must be on `PATH`.
-//! - [`openscion`](mod@openscion) drives `scn` against an in-process
+//! - [`openscion`](mod@openscion) drives `opnscn` against an in-process
 //!   `openscion-server`, both running in this process.
 //!
 //! # Example

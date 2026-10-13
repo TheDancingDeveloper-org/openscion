@@ -1,11 +1,11 @@
-//! The OpenScion backend: each scenario performed with `scn` against an
+//! The OpenScion backend: each scenario performed with `opnscn` against an
 //! `openscion-server`.
 //!
 //! Both run in this process. A fresh server with an empty in-memory
 //! repository starts on a loopback port before each run, outside the timed
-//! region, and `scn` commands run through [`openscion::run`] exactly as the
+//! region, and `opnscn` commands run through [`openscion::run`] exactly as the
 //! binary would run them — over real HTTP, but without spawning a process.
-//! Git pays a process start per command (about a millisecond); `scn` does
+//! Git pays a process start per command (about a millisecond); `opnscn` does
 //! not. The README states this alongside the results.
 
 use std::net::SocketAddr;
@@ -27,7 +27,7 @@ use crate::{Error, Fixture, Result, Scenario};
 ///
 /// Returns [`Error::Io`] when the work directory cannot be prepared,
 /// [`Error::Server`] when the server cannot start, and [`Error::OpenScion`]
-/// when an `scn` command fails.
+/// when an `opnscn` command fails.
 pub fn run(scenario: Scenario, fixture: &Fixture, workdir: &Path) -> Result<Duration> {
     crate::git::reset(workdir)?;
     let repo = workdir.join("repo");
@@ -36,7 +36,7 @@ pub fn run(scenario: Scenario, fixture: &Fixture, workdir: &Path) -> Result<Dura
     let base = server.base();
     let repo_arg = path_arg(&repo)?;
     let clone_arg = path_arg(&workdir.join("clone"))?;
-    let import = || scn(&["--server", &base, "import", &repo_arg]);
+    let import = || opnscn(&["--server", &base, "import", &repo_arg]);
     match scenario {
         Scenario::Import => timed(import),
         Scenario::CommitOneFile => {
@@ -46,16 +46,16 @@ pub fn run(scenario: Scenario, fixture: &Fixture, workdir: &Path) -> Result<Dura
                 path: changed,
                 source,
             })?;
-            timed(|| scn(&["commit", "-m", "change one file", "--dir", &repo_arg]))
+            timed(|| opnscn(&["commit", "-m", "change one file", "--dir", &repo_arg]))
         }
         Scenario::FullClone => {
             import()?;
-            timed(|| scn(&["--server", &base, "clone", &clone_arg]))
+            timed(|| opnscn(&["--server", &base, "clone", &clone_arg]))
         }
         Scenario::SparseClone => {
             let directory = fixture.first_directory().ok_or(Error::NoDirectory)?;
             import()?;
-            timed(|| scn(&["--server", &base, "clone", &clone_arg, "--path", directory]))
+            timed(|| opnscn(&["--server", &base, "clone", &clone_arg, "--path", directory]))
         }
     }
 }
@@ -67,8 +67,8 @@ fn path_arg(path: &Path) -> Result<String> {
     })
 }
 
-fn scn(args: &[&str]) -> Result<()> {
-    let cli = Cli::parse_from(std::iter::once("scn").chain(args.iter().copied()));
+fn opnscn(args: &[&str]) -> Result<()> {
+    let cli = Cli::parse_from(std::iter::once("opnscn").chain(args.iter().copied()));
     openscion::run(&cli, &mut std::io::sink())?;
     Ok(())
 }

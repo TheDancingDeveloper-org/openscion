@@ -1,11 +1,11 @@
 //! The working copy: files on disk plus the state that ties them to a
 //! changeset.
 //!
-//! A working copy is a directory with a `.scn/state.json` recording the
+//! A working copy is a directory with a `.opnscn/state.json` recording the
 //! server, the ref, the base changeset, and every tracked file's blob id and
 //! stat data. A scan walks the directory and reports every file with its
 //! kind, size, and modification time; a file whose stat data matches the
-//! state is not re-read, which is what keeps `scn commit` proportional to
+//! state is not re-read, which is what keeps `opnscn commit` proportional to
 //! what changed rather than to the size of the tree.
 //!
 //! Symlinks are stored as their target. On Unix a file with any execute bit
@@ -22,8 +22,8 @@ use openscion_core::{EntryKind, ObjectId, ObjectKind, object_id};
 use crate::{Error, Result};
 pub(crate) use types::{FileState, Scanned, State};
 
-/// The directory `scn` keeps its state in, at the working-copy root.
-pub(crate) const STATE_DIR: &str = ".scn";
+/// The directory `opnscn` keeps its state in, at the working-copy root.
+pub(crate) const STATE_DIR: &str = ".opnscn";
 const STATE_FILE: &str = "state.json";
 
 pub(crate) fn io_error(path: &Path) -> impl FnOnce(std::io::Error) -> Error + '_ {

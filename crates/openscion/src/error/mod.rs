@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 use openscion_core::PROTOCOL_VERSION;
 
-/// Errors returned by `scn`.
+/// Errors returned by `opnscn`.
 #[derive(Debug, thiserror::Error)]
 #[non_exhaustive]
 pub enum Error {
@@ -62,10 +62,10 @@ pub enum Error {
     /// A file name in the working copy is not UTF-8.
     #[error("{} is not a UTF-8 path", .0.display())]
     NonUtf8Path(PathBuf),
-    /// The directory is not an `scn` working copy.
-    #[error("{} is not an scn working copy (no .scn/state.json)", .0.display())]
+    /// The directory is not an `opnscn` working copy.
+    #[error("{} is not an opnscn working copy (no .opnscn/state.json)", .0.display())]
     NotAWorkingCopy(PathBuf),
-    /// The directory is already an `scn` working copy, or is not empty.
+    /// The directory is already an `opnscn` working copy, or is not empty.
     #[error("{} already holds a working copy or other files", .0.display())]
     AlreadyExists(PathBuf),
     /// The working copy's state file is not valid.
@@ -76,7 +76,7 @@ pub enum Error {
         /// Why it could not be read.
         message: String,
     },
-    /// `scn commit` found no changes.
+    /// `opnscn commit` found no changes.
     #[error("nothing to commit")]
     NothingToCommit,
     /// Writing command output failed.

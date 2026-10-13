@@ -11,13 +11,13 @@ use openscion_core::{PROTOCOL_VERSION, RepoPath};
 
 use crate::{Error, Result, ServerClient, commands};
 
-/// The server `scn` talks to when neither `--server` nor `OPENSCION_SERVER`
+/// The server `opnscn` talks to when neither `--server` nor `OPENSCION_SERVER`
 /// is set: a local `openscion-server` on its default port.
 pub const DEFAULT_SERVER: &str = "http://127.0.0.1:7878";
 
-/// The parsed `scn` command line.
+/// The parsed `opnscn` command line.
 #[derive(Debug, Clone, PartialEq, Eq, Parser)]
-#[command(name = "scn", version, about = "The OpenScion command-line client")]
+#[command(name = "opnscn", version, about = "The OpenScion command-line client")]
 #[non_exhaustive]
 pub struct Cli {
     /// Base URL of the OpenScion server.
@@ -33,9 +33,9 @@ pub struct Cli {
 pub const DEFAULT_REF: &str = "main";
 
 /// The author recorded when neither `--author` nor `OPENSCION_AUTHOR` is set.
-pub const DEFAULT_AUTHOR: &str = "scn";
+pub const DEFAULT_AUTHOR: &str = "opnscn";
 
-/// The commands `scn` understands.
+/// The commands `opnscn` understands.
 #[derive(Debug, Clone, PartialEq, Eq, Subcommand)]
 #[non_exhaustive]
 pub enum Command {
@@ -99,7 +99,7 @@ pub fn run(cli: &Cli, out: &mut impl Write) -> Result<()> {
             let (major, minor) = PROTOCOL_VERSION;
             writeln!(
                 out,
-                "scn {} (protocol {major}.{minor})",
+                "opnscn {} (protocol {major}.{minor})",
                 env!("CARGO_PKG_VERSION")
             )
             .map_err(Error::Output)

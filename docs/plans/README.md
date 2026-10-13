@@ -24,4 +24,4 @@ See [`example-retry-policy.md`](example-retry-policy.md) for a test-first sample
 ## Plans
 
 - [`openscion-data-model.md`](openscion-data-model.md) — the core data model, server
-  routes, `scn` import / commit / clone, and the benchmark backend.
+  routes, `opnscn` import / commit / clone, and the benchmark backend.

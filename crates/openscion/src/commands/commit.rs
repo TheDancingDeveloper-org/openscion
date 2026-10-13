@@ -1,4 +1,4 @@
-//! `scn commit`: record what changed since the base changeset.
+//! `opnscn commit`: record what changed since the base changeset.
 
 use std::collections::HashSet;
 use std::path::Path;

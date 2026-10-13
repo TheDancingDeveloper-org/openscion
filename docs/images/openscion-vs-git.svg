@@ -7,7 +7,7 @@
 <rect x="806" y="135" width="16" height="16" rx="3" fill="#6f6d66"/>
 <text x="829" y="149" font-size="16" font-weight="400" fill="#6b6a65" text-anchor="start">git</text>
 <rect x="874" y="135" width="16" height="16" rx="3" fill="#d97757"/>
-<text x="897" y="149" font-size="16" font-weight="400" fill="#6b6a65" text-anchor="start">scn</text>
+<text x="897" y="149" font-size="16" font-weight="400" fill="#6b6a65" text-anchor="start">opnscn</text>
 <text x="1010" y="150" font-size="16" font-weight="400" fill="#6b6a65" text-anchor="start">Faster</text>
 <line x1="420.0" y1="178" x2="420.0" y2="330" stroke="#e3e1d9" stroke-width="1.5"/>
 <line x1="593.3" y1="178" x2="593.3" y2="330" stroke="#e3e1d9" stroke-width="1.5"/>
