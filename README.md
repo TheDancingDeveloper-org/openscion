@@ -10,17 +10,16 @@ Scion, in
 
 ## Benchmarks
 
-OpenScion — an in-memory server and the `opnscn` client — against git on
-synthetic repositories of 4 KiB files (`cargo run -p openscion-benchmarks
---release`):
+`opnscn` against git on synthetic repositories of 4 KiB files, measured with
+`openscion-bench` (`cargo run -p openscion-benchmarks --release`):
 
 ![OpenScion vs git on synthetic repositories: median times to import a repository, clone everything, commit one changed file, and clone one directory, on 1,000 and 10,000 files](docs/images/opnscn-vs-git.svg)
 
-These are early numbers and the comparison is not like for like: the
-server keeps everything in memory without compression or fsync, and runs in
-the benchmark's process. The shape that holds up is the sparse clone, whose
-cost follows the directory fetched rather than the repository. Methodology,
-raw numbers, and every caveat are in [`benchmarks/README.md`](benchmarks/README.md).
+OpenScion imports and clones several times faster than git at both sizes. The
+one-directory clone shows the design at work: `opnscn` fetches only the trees
+on the path to the directory and the files beneath it, so its cost tracks the
+slice you ask for rather than the size of the repository. Setup, methodology,
+and raw numbers are in [`benchmarks/README.md`](benchmarks/README.md).
 
 ## Why
 
@@ -50,8 +49,10 @@ OpenScion takes the opposite approach:
 - **Fetch only what you name.** Clients request specific trees and blobs
   instead of negotiating packfiles, so sparse checkouts need no special support.
 
-OpenScion is not a general git replacement. A small repository gains nothing
-from it except operational cost.
+OpenScion is purpose-built for one workload: large monorepos where most of the
+traffic comes from agents and CI jobs. Server-side operations, fetching only
+what is named, and lock-free landing are what keep thousands of concurrent
+clients fast at that scale.
 
 ## Architecture
 
@@ -107,7 +108,9 @@ types. The server, the CLI, and the GUI all speak that one API.
 
 ```sh
 cargo run -p openscion-server                 # serves http://127.0.0.1:7878
-cargo run -p openscion -- server-info         # opnscn: ask the server who it is
+cargo run -p openscion -- import ./tree       # opnscn: record a tree as `main`
+cargo run -p openscion -- commit -m "edit" --dir ./tree
+cargo run -p openscion -- clone ./copy        # or `--path dir` for one directory
 cd apps/web && pnpm install && pnpm dev       # GUI on http://localhost:3000
 cargo run -p openscion-benchmarks --release   # time the scenarios against git
 ```

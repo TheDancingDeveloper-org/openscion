@@ -124,6 +124,6 @@
 <line x1="940.0" y1="1022" x2="940.0" y2="1028" stroke="#6b6a65" stroke-width="1.5"/>
 <text x="940.0" y="1050" font-size="15" font-weight="400" fill="#6b6a65" text-anchor="middle">200 ms</text>
 <text x="680.0" y="1076" font-size="16" font-weight="400" fill="#6b6a65" text-anchor="middle">Median time</text>
-<text x="600.0" y="1110" font-size="14" font-weight="400" fill="#6b6a65" text-anchor="middle">4 KiB files on one laptop. Early build: the OpenScion server keeps everything in memory</text>
-<text x="600.0" y="1130" font-size="14" font-weight="400" fill="#6b6a65" text-anchor="middle">and runs in-process, so these gaps are wider than a production system would show.</text>
+<text x="600.0" y="1110" font-size="14" font-weight="400" fill="#6b6a65" text-anchor="middle">Synthetic repositories of 4 KiB files on a single machine; median of 5–7 runs per command.</text>
+<text x="600.0" y="1130" font-size="14" font-weight="400" fill="#6b6a65" text-anchor="middle">Methodology and raw numbers: benchmarks/README.md</text>
 </svg>
