@@ -43,7 +43,7 @@
 <text x="820.0" y="201" font-size="12" fill="#1f2328">21.8 ms</text>
 <rect x="638.0" y="212" width="180.0" height="18" rx="3" fill="#6d4aff"/>
 <text x="824.0" y="225" font-size="12" fill="#1f2328">22.3 ms</text>
-<text x="968.0" y="212" font-size="13" font-weight="600" text-anchor="end" fill="#cf222e">1.0× slower</text>
+<text x="968.0" y="212" font-size="13" font-weight="600" text-anchor="end" fill="#59636e">on par</text>
 <text x="520.0" y="284" font-size="13" fill="#1f2328">full-clone</text>
 <rect x="638.0" y="260" width="180.0" height="18" rx="3" fill="#8b949e"/>
 <text x="824.0" y="273" font-size="12" fill="#1f2328">2,343 ms</text>
