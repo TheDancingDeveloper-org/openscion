@@ -7,15 +7,76 @@
 //!
 //! Variants carry the data a caller needs to react, keep their `#[error]`
 //! message lowercase and free of trailing punctuation, and are documented so
-//! the rendered rustdoc explains when each one occurs.
+//! the rendered rustdoc explains when each one occurs. [`Error::code`] gives
+//! the stable name a server puts on the wire.
+
+use openscion_proto::{ObjectId, PathError};
 
 /// Errors returned by this crate.
 #[derive(Debug, thiserror::Error, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Error {
-    /// A required name was empty or contained only whitespace.
-    #[error("name must not be empty")]
-    EmptyName,
+    /// A path or ref name breaks the path rules.
+    #[error(transparent)]
+    InvalidPath(#[from] PathError),
+    /// A changeset breaks one of the validity rules.
+    #[error("invalid change at {path:?}: {rule}")]
+    InvalidChange {
+        /// The offending path, or empty when the rule is about the whole
+        /// changeset.
+        path: String,
+        /// The rule it breaks.
+        rule: &'static str,
+    },
+    /// No object or changeset has this id.
+    #[error("object {0} not found")]
+    NotFound(ObjectId),
+    /// No ref has this name.
+    #[error("ref {0:?} not found")]
+    NoSuchRef(String),
+    /// A ref did not hold the value a compare-and-swap expected.
+    #[error("ref {name:?} conflict: it points at {}", display_target(*.current))]
+    RefConflict {
+        /// The ref's name.
+        name: String,
+        /// What it actually points at, or `None` if it does not exist.
+        current: Option<ObjectId>,
+    },
+    /// Uploaded bytes do not hash to the id they were sent with.
+    #[error("object {expected} hashes to {actual}")]
+    CorruptObject {
+        /// The id the bytes were sent with.
+        expected: ObjectId,
+        /// The id they actually hash to.
+        actual: ObjectId,
+    },
+    /// Bytes are not a valid encoding of what they claim to be.
+    #[error("malformed {what}: {reason}")]
+    Malformed {
+        /// What was being decoded, such as `tree` or `frame`.
+        what: &'static str,
+        /// What is wrong with it.
+        reason: &'static str,
+    },
+}
+
+fn display_target(current: Option<ObjectId>) -> String {
+    current.map_or_else(|| "nothing".to_owned(), |id| id.to_string())
+}
+
+impl Error {
+    /// The variant's stable name, used as the `code` in an error body.
+    #[must_use]
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::InvalidPath(_) => "InvalidPath",
+            Self::InvalidChange { .. } => "InvalidChange",
+            Self::NotFound(_) | Self::NoSuchRef(_) => "NotFound",
+            Self::RefConflict { .. } => "RefConflict",
+            Self::CorruptObject { .. } => "CorruptObject",
+            Self::Malformed { .. } => "Malformed",
+        }
+    }
 }
 
 /// The crate's standard result type.
