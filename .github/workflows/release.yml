@@ -23,7 +23,7 @@ permissions:
 env:
   # The workspace member whose version names the release. Every member inherits
   # the same `[workspace.package]` version, so any of them would do; this one is
-  # the engine.
+  # the CLI, published to crates.io as `openscion`.
   RELEASE_PACKAGE: openscion
 
 jobs:
@@ -152,6 +152,9 @@ jobs:
           # One version for the whole workspace: every member inherits it with
           # `version.workspace = true`, so this is the only edit needed.
           perl -0pi -e 's/(\[workspace\.package\][\s\S]*?\nversion = ")[^"]+(")/$1$ENV{NEXT_VERSION}$2/' Cargo.toml
+          # The published crates depend on each other by path *and* version,
+          # and those requirements must move with the workspace version.
+          perl -pi -e 's/^(openscion-(?:proto|core) = \{ path = "[^"]+", version = ")[^"]+(")/$1$ENV{NEXT_VERSION}$2/' Cargo.toml
           # `--workspace` re-resolves the local packages only, which is what a
           # version bump changes. `-p <name> --precise` cannot express "and the
           # other member moved too".
@@ -178,14 +181,49 @@ jobs:
           git push origin "HEAD:${GITHUB_REF_NAME}"
           git push origin "${RELEASE_TAG}"
 
+  publish-crates:
+    name: Publish to crates.io
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+          persist-credentials: false
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      # Dependency order: the CLI (`openscion`) depends on the engine, which
+      # depends on the protocol. A version already on crates.io is skipped, so
+      # resuming a release with `current` does not fail on the crates that made
+      # it out the first time.
+      - name: Publish openscion-proto, openscion-core, and openscion
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          VERSION: ${{ needs.prepare.outputs.next_version }}
+        run: |
+          set -euo pipefail
+          for crate in openscion-proto openscion-core openscion; do
+            status="$(curl -s -o /dev/null -w '%{http_code}' \
+              -A "openscion-release (https://github.com/${GITHUB_REPOSITORY})" \
+              "https://crates.io/api/v1/crates/${crate}/${VERSION}")"
+            if [[ "$status" == "200" ]]; then
+              echo "${crate} ${VERSION} is already published; skipping."
+              continue
+            fi
+            cargo publish --locked --package "$crate"
+          done
+
   github-release:
     name: Create GitHub release
     needs: prepare
     runs-on: ubuntu-latest
     steps:
-      # No binaries ship yet: the server, daemon, and `scn` arrive in later
-      # phases (see docs/specs/openscion-architecture.md). Until then a release
-      # is the validated, tagged source.
+      # No binaries are attached yet; `scn` installs from crates.io with
+      # `cargo install openscion`. Prebuilt server and client packages arrive in
+      # later phases (see docs/specs/openscion-architecture.md).
       - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}

@@ -10,7 +10,6 @@ documentation = "https://docs.rs/openscion-proto"
 readme = "README.md"
 keywords = ["vcs", "source-control", "monorepo", "protocol"]
 categories = ["development-tools"]
-publish = false
 
 # Deliberately dependency-light: this is the crate every client, tier, and
 # third-party tool links to speak the API, so it must cost them almost nothing.

@@ -5,12 +5,12 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
-description = "scn, the OpenScion command-line client."
+description = "scn, the OpenScion command-line client for server-centric, agent-scale source control."
 documentation = "https://docs.rs/openscion"
+homepage = "https://github.com/tinyhumansai/openscion"
 readme = "README.md"
 keywords = ["vcs", "source-control", "monorepo", "cli"]
 categories = ["command-line-utilities", "development-tools"]
-publish = false
 
 [[bin]]
 name = "scn"

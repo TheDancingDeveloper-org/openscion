@@ -10,7 +10,6 @@ documentation = "https://docs.rs/openscion"
 readme = "../../README.md"
 keywords = ["vcs", "source-control", "monorepo", "changeset"]
 categories = ["development-tools"]
-publish = false
 
 [dependencies]
 # The protocol: payload types and the protocol version. Re-exported wholesale
