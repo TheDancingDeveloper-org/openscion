@@ -58,8 +58,8 @@ jobs:
       - name: Run the bundled example
         run: cargo run -p openscion-core --example basic
 
-      # A tiny fixture keeps this a smoke test of the harness and the git
-      # backend, not a measurement; CI runners are too noisy for numbers.
+      # A tiny fixture keeps this a smoke test of the harness and both
+      # backends, not a measurement; CI runners are too noisy for numbers.
       - name: Run the benchmark harness
         run: cargo run -p openscion-benchmarks -- --directories 2 --files-per-directory 10 --runs 1
 
