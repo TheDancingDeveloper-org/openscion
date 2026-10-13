@@ -1,0 +1,118 @@
+//! The HTTP surface: routes, the listener, and graceful shutdown.
+//!
+//! [`router`] is a plain [`axum::Router`], so it can be served by [`Server`] or
+//! embedded elsewhere. [`Server`] separates binding from serving so a caller —
+//! a test, or the binary printing its address — learns the bound address
+//! before the first request arrives, even when it asked for port 0.
+
+use std::future::Future;
+use std::net::SocketAddr;
+
+use axum::routing::get;
+use axum::{Json, Router};
+use openscion::{PROTOCOL_VERSION, ServerInfo};
+use tokio::net::TcpListener;
+
+use crate::{Error, Result, ServerConfig};
+
+/// Builds the server's HTTP routes.
+///
+/// # Examples
+///
+/// ```
+/// let app = openscion_server::router();
+/// # let _ = app;
+/// ```
+#[must_use]
+pub fn router() -> Router {
+    Router::new()
+        .route("/healthz", get(healthz))
+        .route("/v1/version", get(version))
+}
+
+async fn healthz() -> &'static str {
+    "ok"
+}
+
+async fn version() -> Json<ServerInfo> {
+    Json(ServerInfo::new(env!("CARGO_PKG_VERSION"), PROTOCOL_VERSION))
+}
+
+/// A bound, not-yet-serving server.
+#[derive(Debug)]
+pub struct Server {
+    listener: TcpListener,
+    local_addr: SocketAddr,
+}
+
+impl Server {
+    /// Binds the configured listen address.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::Bind`] when the address cannot be bound.
+    pub async fn bind(config: &ServerConfig) -> Result<Self> {
+        let bind_error = |source| Error::Bind {
+            addr: config.listen,
+            source,
+        };
+        let listener = TcpListener::bind(config.listen)
+            .await
+            .map_err(bind_error)?;
+        let local_addr = listener.local_addr().map_err(bind_error)?;
+        Ok(Self {
+            listener,
+            local_addr,
+        })
+    }
+
+    /// The address the server is bound to, with any port 0 resolved.
+    #[must_use]
+    pub fn local_addr(&self) -> SocketAddr {
+        self.local_addr
+    }
+
+    /// Serves [`router`] until `shutdown` resolves, then finishes in-flight
+    /// requests and returns.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::Serve`] when the listener fails.
+    pub async fn serve(self, shutdown: impl Future<Output = ()> + Send + 'static) -> Result<()> {
+        axum::serve(self.listener, router())
+            .with_graceful_shutdown(shutdown)
+            .await
+            .map_err(Error::Serve)
+    }
+}
+
+/// Resolves on Ctrl-C, or on SIGTERM on Unix.
+///
+/// If a signal handler cannot be installed, that signal is ignored rather than
+/// shutting the server down immediately.
+pub async fn shutdown_signal() {
+    let ctrl_c = async {
+        if tokio::signal::ctrl_c().await.is_err() {
+            std::future::pending::<()>().await;
+        }
+    };
+    #[cfg(unix)]
+    let terminate = async {
+        match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate()) {
+            Ok(mut signal) => {
+                signal.recv().await;
+            }
+            Err(_) => std::future::pending::<()>().await,
+        }
+    };
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+
+    tokio::select! {
+        () = ctrl_c => {}
+        () = terminate => {}
+    }
+}
+
+#[cfg(test)]
+mod test;
