@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1186" viewBox="0 0 1200 1186" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif">
 <rect width="1200" height="1186" fill="#e8e6dc"/>
-<text x="600.0" y="62" font-size="36" font-weight="700" fill="#141413" text-anchor="middle">Everyday source control commands: OpenScion vs git</text>
+<text x="600.0" y="62" font-size="36" font-weight="700" fill="#141413" text-anchor="middle">OpenScion vs git on synthetic repositories</text>
 <rect x="32" y="92" width="1136" height="1062" rx="22" fill="#faf9f5"/>
 <text x="420" y="150" font-size="21" font-weight="700" fill="#141413" text-anchor="start">Repository with 1,000 files</text>
 <rect x="790" y="126" width="150" height="34" rx="9" fill="none" stroke="#6b6a65" stroke-width="1.5"/>
