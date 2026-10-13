@@ -1,7 +1,8 @@
 //! The git backend: each scenario performed with the `git` command-line tool.
 //!
 //! Git runs with an isolated configuration — no system or global config, no
-//! hooks, no signing — so a developer's setup cannot change the numbers.
+//! hooks, no signing, no automatic gc or maintenance — so neither a
+//! developer's setup nor a background repack can land inside a timed run.
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -106,6 +107,10 @@ fn git(dir: &Path, args: &[&str]) -> Result<()> {
             "init.defaultBranch=main",
             "-c",
             "core.hooksPath=",
+            "-c",
+            "gc.auto=0",
+            "-c",
+            "maintenance.auto=false",
         ])
         .args(args)
         .output()
