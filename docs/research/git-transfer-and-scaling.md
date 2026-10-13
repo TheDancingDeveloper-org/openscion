@@ -191,22 +191,17 @@ heuristic (git 2.40) lets incremental fetches download only newer bundles
 ([bundle-uri design](https://github.com/git/git/blob/master/Documentation/technical/bundle-uri.adoc)).
 Clients must degrade gracefully when bundles are unavailable.
 
-**Packfile URIs.** A v2-only extension in which the server replaces part of the
-`packfile` response with a `packfile-uris` section listing URIs and the hash of
-the pack behind each. The client downloads and indexes them before the
-connectivity check. git's own server implementation is marked experimental: it
-excludes blobs configured with `uploadpack.blobPackfileUri=<object-hash>
-<pack-hash> <uri>` and serves them by URI instead, and clients opt in with
-`fetch.uriprotocols`, which is empty by default
+**Packfile URIs.** A v2-only extension: the server replaces part of the pack
+with a `packfile-uris` section of URIs and pack hashes, which the client
+downloads before its connectivity check. git's experimental server side
+offloads blobs listed in `uploadpack.blobPackfileUri`; clients opt in through
+`fetch.uriprotocols`, empty by default
 ([packfile-uri design](https://github.com/git/git/blob/master/Documentation/technical/packfile-uri.adoc)).
 
-**Where cost scales.** Without bitmaps, counting is a walk over all history
-reachable from the wants. Bitmaps make it cheap but must be rebuilt by
-repacking, which is proportional to the whole repository. Delta search is
-proportional to the objects not reusable from disk. Response caches only help
-when many clients send the exact same request. Bundles and packfile URIs move
-bytes to a CDN, but bundles drift from the tip and must be regenerated on a
-schedule.
+**Where cost scales.** Without bitmaps, counting walks all history reachable
+from the wants; bitmaps need repacking, proportional to the whole repository.
+Response caches help only identical requests, and bundles drift from the tip
+until regenerated.
 
 ## Sending less: shallow, partial, and sparse
 
