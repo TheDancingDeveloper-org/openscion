@@ -23,7 +23,6 @@ use crate::{Error, Result, ServerConfig};
 /// let app = openscion_server::router();
 /// # let _ = app;
 /// ```
-#[must_use]
 pub fn router() -> Router {
     Router::new()
         .route("/healthz", get(healthz))
