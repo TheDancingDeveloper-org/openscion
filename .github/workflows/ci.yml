@@ -58,6 +58,11 @@ jobs:
       - name: Run the bundled example
         run: cargo run -p openscion-core --example basic
 
+      # A tiny fixture keeps this a smoke test of the harness and the git
+      # backend, not a measurement; CI runners are too noisy for numbers.
+      - name: Run the benchmark harness
+        run: cargo run -p openscion-benchmarks -- --directories 2 --files-per-directory 10 --runs 1
+
       # `crates/openscion-proto` exists so a host can name the payload types
       # without compiling the module. That promise is invisible in a diff,
       # because a forbidden dependency arrives transitively through a feature
@@ -91,6 +96,40 @@ jobs:
           name: coverage-json
           path: coverage.json
           if-no-files-found: ignore
+
+  web:
+    name: Web GUI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # pnpm's version comes from `packageManager` in apps/web/package.json.
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: apps/web/package.json
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
 
   docs:
     name: Docs
