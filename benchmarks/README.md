@@ -35,14 +35,16 @@ backends' clones are checked byte for byte against the fixture in
 ## Results
 
 Apple Silicon laptop, release build, 4 KiB files, `--runs 7` (1,000 files) and
-`--runs 5` (10,000 files):
+`--runs 5` (10,000 files), measured 2026-10-14:
+
+![OpenScion MVP vs git](../docs/images/benchmarks.svg)
 
 | Scenario | git, 1k files | OpenScion, 1k | git, 10k files | OpenScion, 10k |
 | --- | ---: | ---: | ---: | ---: |
-| import | 438 ms | 21 ms | 4,766 ms | 276 ms |
-| commit-one-file | 66 ms | 2.6 ms | 28 ms | 32 ms |
-| full-clone | 246 ms | 61 ms | 2,783 ms | 832 ms |
-| sparse-clone | 94 ms | 9.8 ms | 199 ms | 23 ms |
+| import | 425 ms | 21.9 ms | 3,966 ms | 245 ms |
+| commit-one-file | 66.9 ms | 2.5 ms | 21.8 ms | 22.3 ms |
+| full-clone | 241 ms | 50.7 ms | 2,343 ms | 544 ms |
+| sparse-clone | 84.2 ms | 6.1 ms | 158 ms | 25.3 ms |
 
 ## Read these numbers with the caveats
 

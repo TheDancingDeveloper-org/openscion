@@ -8,10 +8,19 @@ on laptops. It follows the design Anthropic described for its internal system,
 Scion, in
 [*Redesigning source control*](https://www.anthropic.com/engineering/redesigning-source-control).
 
-> **Status: design phase.** The specs are drafted, and a server, a CLI
-> (`scn`), a web GUI, and a git benchmark harness are scaffolded. No source
-> control behavior is implemented yet: the server answers discovery requests
-> only, and phase 1 adds the core data model.
+## Benchmarks
+
+The phase-1 MVP — an in-memory server and the `scn` client — against git on
+synthetic repositories of 4 KiB files (`cargo run -p openscion-benchmarks
+--release`):
+
+![OpenScion MVP vs git: median times for import, commit-one-file, full-clone, and sparse-clone on 1,000 and 10,000 files](docs/images/benchmarks.svg)
+
+These are early numbers and the comparison is not like for like: the MVP
+server keeps everything in memory without compression or fsync, and runs in
+the benchmark's process. The shape that holds up is the sparse clone, whose
+cost follows the directory fetched rather than the repository. Methodology,
+raw numbers, and every caveat are in [`benchmarks/README.md`](benchmarks/README.md).
 
 ## Why
 
