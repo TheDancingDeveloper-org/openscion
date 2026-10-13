@@ -23,5 +23,5 @@ See [`example-retry-policy.md`](example-retry-policy.md) for a test-first sample
 
 ## Plans
 
-- [`openscion-mvp.md`](openscion-mvp.md) — the phase-1 MVP: data model, server
+- [`openscion-data-model.md`](openscion-data-model.md) — the core data model, server
   routes, `scn` import / commit / clone, and the benchmark backend.

@@ -205,8 +205,8 @@ each builds on the one before.
 
 1. **Core data model (in-process).** Object ids and hashing, blobs, trees,
    path validation, changesets, the in-memory log and ref store, root-tree
-   derivation, and the in-process API for the basic reads and writes. The MVP
-   ([`../plans/openscion-mvp.md`](../plans/openscion-mvp.md)) delivers this
+   derivation, and the in-process API for the basic reads and writes. The
+   [core data model plan](../plans/openscion-data-model.md) delivers this
    phase in memory, with the server routes and `scn` import, commit, and clone
    on top.
 2. **Derived data and queries.** The derived-data framework, generation numbers

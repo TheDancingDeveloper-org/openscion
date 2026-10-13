@@ -5,7 +5,7 @@ changeset log, the refs, and the derived-data indexes, and it is the only
 component that creates changesets or moves refs (see
 [`docs/specs/openscion-architecture.md`](../../docs/specs/openscion-architecture.md)).
 
-The MVP serves the object, changeset, and ref operations over an in-memory
+It serves the object, changeset, and ref operations over an in-memory
 repository. A restart starts from an empty repository.
 
 ```sh

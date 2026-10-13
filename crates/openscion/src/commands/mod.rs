@@ -8,7 +8,7 @@
 //!   changeset and creates the ref.
 //! - **commit** records what changed since the base changeset and moves the
 //!   ref from the base to the new changeset by compare-and-swap. If someone
-//!   else moved it first the swap fails; the MVP has no rebase, so the
+//!   else moved it first the swap fails; there is no rebase yet, so the
 //!   changeset stays in the log unreferenced and the error is reported.
 //! - **clone** reads the ref, fetches the trees breadth first — one request
 //!   per level — and then the blobs in batches, verifying every id. With a

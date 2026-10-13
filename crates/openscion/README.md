@@ -4,7 +4,7 @@
 sparse working copy, watches it for edits, uploads blobs, and wraps the server's
 history and landing APIs (see
 [`docs/specs/openscion-architecture.md`](../../docs/specs/openscion-architecture.md)).
-The MVP implements import, commit, and clone against an `openscion-server`.
+Today it implements import, commit, and clone against an `openscion-server`.
 
 ```sh
 scn version
@@ -27,7 +27,7 @@ scn clone ./slice --path services/api             # one directory of it
 (default `main`); `--author` (or `OPENSCION_AUTHOR`) sets the author. A working
 copy keeps its state in `.scn/state.json`, and `commit` talks to the server
 the working copy came from. If someone else moved the ref first, `commit`
-fails with `RefConflict`: the MVP has no rebase yet.
+fails with `RefConflict`: there is no rebase yet.
 
 The client speaks plain HTTP only for now. TLS will be added once a deployment
 needs it.

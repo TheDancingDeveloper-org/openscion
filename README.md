@@ -10,13 +10,13 @@ Scion, in
 
 ## Benchmarks
 
-The OpenScion MVP — an in-memory server and the `scn` client — against git on
+OpenScion — an in-memory server and the `scn` client — against git on
 synthetic repositories of 4 KiB files (`cargo run -p openscion-benchmarks
 --release`):
 
-![OpenScion MVP vs git: median times for import, commit-one-file, full-clone, and sparse-clone on 1,000 and 10,000 files](docs/images/benchmarks.svg)
+![OpenScion vs git: median times for import, commit-one-file, full-clone, and sparse-clone on 1,000 and 10,000 files](docs/images/benchmarks.svg)
 
-These are early numbers and the comparison is not like for like: the MVP
+These are early numbers and the comparison is not like for like: the
 server keeps everything in memory without compression or fsync, and runs in
 the benchmark's process. The shape that holds up is the sparse clone, whose
 cost follows the directory fetched rather than the repository. Methodology,

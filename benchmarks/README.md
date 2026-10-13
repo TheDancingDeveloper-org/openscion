@@ -37,7 +37,7 @@ backends' clones are checked byte for byte against the fixture in
 Apple Silicon laptop, release build, 4 KiB files, `--runs 7` (1,000 files) and
 `--runs 5` (10,000 files), measured 2026-10-14:
 
-![OpenScion MVP vs git](../docs/images/benchmarks.svg)
+![OpenScion vs git](../docs/images/benchmarks.svg)
 
 | Scenario | git, 1k files | OpenScion, 1k | git, 10k files | OpenScion, 10k |
 | --- | ---: | ---: | ---: | ---: |
@@ -48,7 +48,7 @@ Apple Silicon laptop, release build, 4 KiB files, `--runs 7` (1,000 files) and
 
 ## Read these numbers with the caveats
 
-This is an MVP measured against mature, durable software. The comparison is
+This is an early, in-memory build measured against mature, durable software. The comparison is
 not like for like, and the gaps above are larger than a production OpenScion
 would show:
 

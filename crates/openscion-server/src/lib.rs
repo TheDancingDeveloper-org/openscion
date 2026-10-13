@@ -2,7 +2,7 @@
 //!
 //! In the architecture (`docs/specs/openscion-architecture.md`) the server owns
 //! the changeset log, the refs, and the derived-data indexes, and is the only
-//! component that creates changesets or moves refs. The MVP serves the
+//! component that creates changesets or moves refs. It serves the
 //! object, changeset, and ref operations over an in-memory
 //! [`openscion_core::Repository`]; a restart starts from an empty repository.
 //!

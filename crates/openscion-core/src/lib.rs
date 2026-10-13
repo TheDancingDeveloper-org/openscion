@@ -4,7 +4,7 @@
 //! The design is specified in `docs/specs/`: the architecture, the data model
 //! (objects, changesets, the log, refs, derived data), and the API. This crate
 //! is the engine those specs describe, as a plain library usable in-process
-//! with no transport. Today it holds the phase-1 MVP:
+//! with no transport. Today it holds:
 //!
 //! - [`object_id`] — BLAKE3 ids over canonical encodings.
 //! - [`encode_tree`], [`decode_tree`], [`encode_changeset`] — the canonical

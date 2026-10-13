@@ -3,10 +3,10 @@
 //! [`Repository`] is the engine the server wraps. It accepts blobs, validates
 //! and appends changesets — deriving each one's root tree before the append is
 //! acknowledged — and moves refs by compare-and-swap
-//! (`docs/specs/openscion-data-model.md`). Everything is in memory; the MVP has
-//! no persistence.
+//! (`docs/specs/openscion-data-model.md`). Everything is in memory; there is no
+//! persistence yet.
 //!
-//! What the MVP leaves out: generation numbers, skip lists, path history,
+//! Not here yet: generation numbers, skip lists, path history,
 //! rebase, and landing. A ref conflict is reported, not retried.
 
 mod derive;

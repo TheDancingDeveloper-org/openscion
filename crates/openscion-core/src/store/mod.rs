@@ -1,7 +1,7 @@
 //! The object store: blobs and trees by id.
 //!
 //! [`MemoryObjectStore`] keeps every object in memory. It is the only store
-//! the MVP has; a persistent store implements the same operations behind the
+//! there is today; a persistent store implements the same operations behind the
 //! same port in a later phase (`docs/specs/openscion-architecture.md`).
 //! Objects are immutable and content-addressed, so a put of an object that is
 //! already present is a no-op.

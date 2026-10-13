@@ -1,4 +1,4 @@
-# Plan: OpenScion MVP
+# Plan: OpenScion core data model
 
 - **Status:** Done (phase 1, in-memory, single ref)
 - **Specifications:**

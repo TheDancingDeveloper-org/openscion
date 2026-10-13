@@ -2,7 +2,7 @@
 //!
 //! In the full design (`docs/specs/openscion-architecture.md`) `scn` lays out
 //! a sparse working copy, watches it for edits, uploads blobs, and wraps the
-//! server's history and landing APIs. The MVP implements:
+//! server's history and landing APIs. Today it implements:
 //!
 //! | Command | What it does |
 //! | --- | --- |

@@ -9,7 +9,7 @@ This page tracks where things stand.
 - Workspace, lints, CI (format, clippy, build, test, per-file coverage,
   rustdoc, MSRV, supply chain), and a tag-and-release workflow.
 - Draft specs: architecture, data model, and API.
-- **MVP** ([plan](docs/plans/openscion-mvp.md)): object ids, paths, trees,
+- **Core data model** ([plan](docs/plans/openscion-data-model.md)): object ids, paths, trees,
   changesets, the in-memory log and compare-and-swap refs, root-tree
   derivation by path copying; the server's object, changeset, and ref routes;
   `scn import`, `commit`, and `clone` (including one-directory clones); and an
