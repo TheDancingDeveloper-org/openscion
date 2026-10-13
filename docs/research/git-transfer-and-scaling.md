@@ -286,11 +286,9 @@ its own advertisement and pack generation. The Scion authors' closing
 recommendation, recorded in [`scion.md`](scion.md#caveats-from-the-authors),
 was that negotiation, sparse, and shallow be reworked to compose better.
 
-**Where cost scales.** Shallow fetches move server cost from bitmaps to graph
-walks over the boundary. Partial clones keep every commit (and, when
-blobless, every tree) on the client, so clone size still grows with history;
-missing objects then cost a round trip each. Sparse checkout does nothing for
-transfer unless paired with a filter.
+**Where cost scales.** Shallow fetches trade bitmaps for graph walks at the
+boundary. Partial clones still hold every commit (and, if blobless, every
+tree), so they grow with history, and each missing object costs a round trip.
 
 ## Large-repository tooling around git
 
@@ -332,15 +330,16 @@ in Harry's figures. The README now recommends Scalar for new deployments.
 (Stolee and Dye, 2022) explains the pivot: the Office monorepo needed macOS,
 where the kernel features virtualization depended on were deprecated, so the
 team used sparse checkout instead, adding cone mode and pairing it with the
-filesystem monitor. Scalar became part of core git in 2.38. `scalar clone`
-fetches only commits and trees (blobless), initializes a cone-mode sparse
-checkout containing only top-level files, and registers background maintenance
-([scalar](https://git-scm.com/docs/scalar)); 2.38 also has it enable the
-built-in FSMonitor where supported.
+filesystem monitor. Scalar joined core git in 2.38. `scalar clone` fetches
+only commits and trees, starts a cone-mode sparse checkout of top-level files,
+enables background maintenance ([scalar](https://git-scm.com/docs/scalar)),
+and turns on the built-in FSMonitor where supported. Microsoft's path shows
+how far git's own model can be pushed, and where it stops: the commit graph,
+trees, and maintenance remain every client's problem.
 
 **FSMonitor.** `core.fsmonitor=true` starts a built-in daemon (Windows and
-macOS) that tells git which paths changed since a token, so `git status` need
-not scan the whole working tree; older setups use a hook such as Watchman.
+macOS) that reports changed paths so `git status` need not scan the whole
+working tree; older setups use a hook such as Watchman.
 
 **Commit-graph and maintenance.** The commit-graph file stores, per commit, its
 parents by integer position, commit date, root tree, and a generation number,
@@ -354,12 +353,10 @@ background tasks: `commit-graph`, `prefetch` (fetch into `refs/prefetch/`),
 ([git-maintenance](https://git-scm.com/docs/git-maintenance)).
 
 **Where cost scales.** LFS and GVFS scale with what is read, but only for the
-objects they cover; git's own metadata still comes through packs. Scalar,
-FSMonitor, and commit-graph are client-side: they make local operations
-proportional to the change rather than the tree, but every client still holds
-the full commit graph and pays for maintenance as history grows.
+objects they cover. The client-side tools make local operations proportional
+to the change, yet every client still holds the commit graph and maintains it.
 
-## Prior art: monorepo systems that left git's model
+## Prior art: monorepo systems beyond git
 
 ### Google: Piper and CitC
 
@@ -370,19 +367,15 @@ files, about 35 million commits, 86 TB, about two billion lines of code in nine
 million source files. On a typical workday engineers committed about 16,000
 changes and automated systems another 24,000.
 
-- **Piper** is the server: a single repository implemented on Google
-  infrastructure, originally Bigtable and later Spanner, distributed over 10
-  data centers with Paxos for consistency. Caching and asynchronous operations
-  hide much of the network latency. It supports file-level access control
-  lists.
-- **CitC** (Clients in the Cloud) is the client: a cloud-based storage backend
-  and a Linux-only FUSE filesystem. Developers see the whole codebase but a
-  workspace stores only modified files; the average workspace has fewer than
-  10 files.
-- Development is trunk-based, with changes applied in a single serial order.
-  The authors judged moving to git or any DVCS that required splitting the
-  repository not compelling, and described an experimental effort to add
-  scalability to Mercurial instead.
+- **Piper** is the server, built on Bigtable and later Spanner, distributed
+  over 10 data centers with Paxos; caching and asynchronous operations hide
+  network latency. It supports file-level access control lists.
+- **CitC** (Clients in the Cloud) pairs cloud storage with a Linux-only FUSE
+  filesystem. Developers see the whole codebase, but a workspace stores only
+  modified files; the average has fewer than 10.
+- Development is trunk-based, with changes in a single serial order. The
+  authors found moving to git or a DVCS that split the repository not
+  compelling, and were experimenting with scaling Mercurial instead.
 
 ### Meta: Sapling, EdenFS, and Mononoke
 
@@ -430,16 +423,9 @@ OpenScion:
   redaction, throttling) and a SQL metadata database for bookmarks, VCS
   mappings, and the commit graph index
   ([storage](https://github.com/facebook/sapling/blob/main/eden/mononoke/docs/2.4-storage-architecture.md)).
-  Microwave pre-warms caches from offline snapshots.
 - **Pushrebase.** The server rebases pushed commits onto a moved bookmark when
   the files touched do not overlap, instead of rejecting the push
   ([pushrebase](https://github.com/facebook/sapling/blob/main/eden/mononoke/docs/4.1-pushrebase.md)).
-
-### Microsoft
-
-Microsoft kept git's object model and changed what clients transfer (VFS
-for Git, then Scalar, above). It shows how far git can be pushed and where it stops: the commit
-graph, trees, and maintenance remain every client's problem.
 
 ## Where cost scales: summary
 
@@ -467,54 +453,43 @@ BLAKE3 id. There is no have-negotiation, every request names immutable
 objects, and the daemon, cache, and server tiers answer the same RPCs.
 Against each git mechanism:
 
-- **Ref advertisement.** Replaced by `ResolveRef` for the one ref wanted. Ref
-  count never enters the fetch path, which is what v2's `ls-refs` with
-  `ref-prefix` approximates.
-- **Negotiation.** Gone. The client consults its own store, so no server ever
-  learns or walks the client's history, and there is nothing to resend per
-  round. The cost is more requests for a cold checkout than one pack would
-  need, which batching and the tiers must absorb.
+- **Ref advertisement.** Replaced by `ResolveRef` for the one ref wanted, so
+  ref count never enters the fetch path; v2's `ls-refs` only approximates this.
+- **Negotiation.** Gone. The client consults its own store, so no server walks
+  the client's history and nothing is resent per round. The price is more
+  requests for a cold checkout than one pack, which batching and tiers absorb.
 - **Pack generation, bitmaps, delta islands, repacking.** No per-client pack
-  is built, so none of these exist. Responses are keyed by object id, so any
-  tier can cache them indefinitely; git's closest equivalent, the
-  pack-objects response cache, only matches identical requests for minutes.
-  OpenScion gives up cross-object delta compression on the wire and should
-  measure what per-object compression costs in bytes.
-- **Bundle URIs and packfile URIs.** These exist to move git's bytes onto
-  static hosts. OpenScion's objects are already static and cacheable; the
-  daemon and regional cache tiers do the job without staleness, since an id
-  can never point at different bytes.
-- **Shallow clone.** No equivalent is needed: fetching a changeset's tree
-  never requires its history. History questions go to the server's derived
-  data instead of being answered locally.
-- **Partial clone and lazy fetch.** A checkout is always "partial" and the
-  protocol is built for it: batched `GetObjects` replaces git's one-object
-  dynamic fetch, and there is no promisor bookkeeping because the client never
-  claims to be complete.
-- **Sparse checkout.** Expressed as the path set the client walks, with no
-  filter negotiation; sparse and virtual checkouts use the same RPCs. This is
-  the composition the Scion authors asked git for.
-- **Push.** Replaced by `PutBlobs` (after `HasObjects`) and server-side
-  changeset creation. Mononoke's pushrebase is the nearest precedent for
-  landing onto a moved ref without a client retry loop.
-- **LFS and GVFS.** Both are per-object, content-addressed side protocols
-  bolted onto git. OpenScion makes that the only protocol, which also removes
-  the need for a separate large-file path, provided large blobs can be
-  streamed or chunked (an open question in the API spec).
-- **Client-side scaling tools.** Commit-graph, maintenance, and multi-pack
-  indices exist because each git client holds history. OpenScion clients hold a
-  bounded cache, so maintenance reduces to cache eviction. FSMonitor-style
-  change tracking remains relevant to the working copy.
+  exists. Responses are keyed by object id and cacheable indefinitely at any
+  tier, where git's pack-objects cache matches identical requests for minutes.
+  OpenScion gives up cross-object deltas on the wire and should measure that.
+- **Bundle and packfile URIs.** These move git's bytes onto static hosts.
+  OpenScion's objects are already static; the daemon and cache tiers do the
+  job without staleness, since an id never names different bytes.
+- **Shallow clone.** Unneeded: a changeset's tree never requires its history,
+  and history questions go to the server's derived data.
+- **Partial clone and lazy fetch.** Every checkout is partial by design.
+  Batched `GetObjects` replaces one-object dynamic fetch, and there is no
+  promisor bookkeeping because the client never claims completeness.
+- **Sparse checkout.** Just the path set the client walks, with no filter
+  negotiation; sparse and virtual checkouts use the same RPCs. This is the
+  composition the Scion authors asked git for.
+- **Push.** Replaced by `HasObjects`, `PutBlobs`, and server-side changeset
+  creation. Mononoke's pushrebase is the nearest precedent for landing onto a
+  moved ref without a client retry loop.
+- **LFS and GVFS.** Per-object, content-addressed side protocols bolted onto
+  git. OpenScion makes that the only protocol; whether `GetObjects` streams
+  large responses is still an open question in the API spec.
+- **Client-side tools.** Commit-graph and maintenance exist because each git
+  client holds history. OpenScion clients hold a bounded cache, so maintenance
+  reduces to eviction; FSMonitor-style change tracking still applies.
 
 **Study Mononoke closely.** Bonsai changesets are a very close precedent for
-OpenScion changesets: a flat list of path changes against parents, pointing at
-content-addressed blobs, with trees and history indices treated as derived
-data computed from a changeset and its parents. OpenScion differs in recording
-changes against the first parent only, in hashing with BLAKE3, and in serving
-trees as fetchable objects to a tiered cache rather than to Mercurial or git
-clients. Mononoke's derived-data framework (per-type derivation, dependency
-ordering, backfill, a remote derivation queue), its blobstore decorator stack,
-its git server that derives git objects on demand, and its pushrebase
-conflict rule are all worked examples of problems OpenScion's specs leave
-open. Google's Piper and CitC show the same split at larger scale but are not
-available to read.
+OpenScion changesets: a flat list of full-path file changes pointing at
+content-addressed blobs, with trees and history indices as derived data
+computed from a changeset and its parents. OpenScion differs in recording
+changes against the first parent only, hashing with BLAKE3, and serving trees
+as fetchable objects to a tiered cache. Mononoke's derived-data framework
+(dependency ordering, backfill, a remote derivation queue), blobstore
+decorator stack, on-demand git view, and pushrebase conflict rule are worked
+examples of problems OpenScion's specs leave open. Piper and CitC show the
+same split at larger scale but are not open source.
