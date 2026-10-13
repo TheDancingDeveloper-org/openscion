@@ -37,7 +37,7 @@ backends' clones are checked byte for byte against the fixture in
 Apple Silicon laptop, release build, 4 KiB files, `--runs 7` (1,000 files) and
 `--runs 5` (10,000 files), measured 2026-10-14:
 
-![OpenScion vs git](../docs/images/benchmarks.svg)
+![Everyday source control commands, OpenScion vs git](../docs/images/benchmark-everyday-commands.svg)
 
 | Scenario | git, 1k files | OpenScion, 1k | git, 10k files | OpenScion, 10k |
 | --- | ---: | ---: | ---: | ---: |
