@@ -153,16 +153,13 @@ even if empty. The server unpacks it, checks each `old-id` still matches, runs
 hooks, updates refs, and reports `ok` or `ng <ref> <reason>` per ref.
 Receive-pack accepts thin packs unless it advertises `no-thin`.
 
-- **Atomic push.** With `atomic`, all ref updates happen in one transaction:
-  all or none.
-- **Push certificates.** With `push-cert`, the command list is wrapped in a
-  GPG-signed certificate naming the pusher, the target URL, and the
-  server-supplied nonce, which prevents replay.
+With `atomic`, all ref updates happen in one transaction, all or none. With
+`push-cert`, the command list is wrapped in a GPG-signed certificate naming the
+pusher, the target URL, and a server-supplied nonce that prevents replay.
 
-Push has the same knowledge problem as fetch in reverse: the client builds the
-pack from the refs the server advertised, so its cost depends on how well the
-advertisement describes what the server holds. A push to a moving branch fails
-non-fast-forward and the client must fetch, rebase or merge locally, and retry.
+The client builds the pack from the refs the server advertised, so push has
+fetch's knowledge problem in reverse. A push to a moved branch fails
+non-fast-forward and the client must fetch, rebase or merge, and retry.
 
 ## Server-side pack generation
 
