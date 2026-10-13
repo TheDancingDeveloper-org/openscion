@@ -40,7 +40,8 @@ different racks, treating racks as availability zones. Spokes has no primary:
 majority of replicas, is accepted only if a strict majority applies it with the
 same result, and is reverted otherwise; losing replicas are marked unhealthy
 until repaired with a mix of git and rsync. On a typical day a few dozen writes
-out of many millions failed to get a unanimous vote. Failure detection uses live traffic, tracked per application server.
+out of many millions failed to get a unanimous vote. Failure detection uses
+live traffic, tracked per application server.
 
 ### Ref updates: three-phase commit and checksums
 
