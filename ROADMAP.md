@@ -9,15 +9,17 @@ This page tracks where things stand.
 - Workspace, lints, CI (format, clippy, build, test, per-file coverage,
   rustdoc, MSRV, supply chain), and a tag-and-release workflow.
 - Draft specs: architecture, data model, and API.
+- **MVP** ([plan](docs/plans/openscion-mvp.md)): object ids, paths, trees,
+  changesets, the in-memory log and compare-and-swap refs, root-tree
+  derivation by path copying; the server's object, changeset, and ref routes;
+  `scn import`, `commit`, and `clone` (including one-directory clones); and an
+  OpenScion backend in `openscion-bench`.
 
 ## Next
 
-1. **Core data model.** Object ids and hashing, paths, blobs, trees,
-   changesets, the in-memory log and refs, root-tree derivation, and the basic
-   read and write operations. Replaces the template `greeting` module.
-2. **Derived data and queries.** Generation numbers, skip lists, path history,
+1. **Derived data and queries.** Generation numbers, skip lists, path history,
    `Log`, `Diff`, `MergeBase`, `IsAncestor`, `ListTree`, `Stat`.
-3. **Server-side rebase and landing.** `Rebase`, `Land`, `Revert`, file-level
+2. **Server-side rebase and landing.** `Rebase`, `Land`, `Revert`, file-level
    conflicts.
 
 ## Later

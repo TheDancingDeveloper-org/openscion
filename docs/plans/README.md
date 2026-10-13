@@ -20,3 +20,8 @@ code snippets when they remove ambiguity, but do not paste entire future files
 into the plan.
 
 See [`example-retry-policy.md`](example-retry-policy.md) for a test-first sample.
+
+## Plans
+
+- [`openscion-mvp.md`](openscion-mvp.md) — the phase-1 MVP: data model, server
+  routes, `scn` import / commit / clone, and the benchmark backend.

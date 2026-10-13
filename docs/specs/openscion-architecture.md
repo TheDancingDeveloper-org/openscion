@@ -205,8 +205,10 @@ each builds on the one before.
 
 1. **Core data model (in-process).** Object ids and hashing, blobs, trees,
    path validation, changesets, the in-memory log and ref store, root-tree
-   derivation, and the in-process API for the basic reads and writes. Replaces
-   the template `greeting` module.
+   derivation, and the in-process API for the basic reads and writes. The MVP
+   ([`../plans/openscion-mvp.md`](../plans/openscion-mvp.md)) delivers this
+   phase in memory, with the server routes and `scn` import, commit, and clone
+   on top.
 2. **Derived data and queries.** The derived-data framework, generation numbers
    and first-parent skip lists, path history, `Log`, `Diff`, `MergeBase`,
    `IsAncestor`, `ListTree`, `Stat`.

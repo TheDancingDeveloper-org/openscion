@@ -15,7 +15,7 @@ before changing behavior, and background on the system it is modelled on in
 This repository was generated from a Rust module template. The renames are
 done; these items are still open:
 
-- [ ] Replace the placeholder `greeting` module in both crates with the phase-1
+- [x] Replace the placeholder `greeting` module in both crates with the phase-1
       data model — payload types in `openscion-proto`, behavior in `openscion-core` —
       keeping the `mod.rs` / `types.rs` / `test.rs` layout.
 - [ ] Confirm `license` and `LICENSE` match the project's intended license.
@@ -69,7 +69,7 @@ behavior, and CI asserts it stays that way. A client that only makes calls
 depends on it alone.
 
 `crates/openscion-core` depends on it and re-exports all of it, so
-`openscion_core::GreetRequest` and `openscion_proto::GreetRequest` are the *same*
+`openscion_core::ObjectId` and `openscion_proto::ObjectId` are the *same*
 type rather than structural twins. That direction is load-bearing: a parallel
 set of payload types for clients would mean a conversion at every call site
 that nothing checks.
