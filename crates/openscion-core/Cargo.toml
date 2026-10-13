@@ -14,10 +14,12 @@ categories = ["development-tools"]
 [dependencies]
 # The protocol: payload types and the protocol version. Re-exported wholesale
 # from `src/lib.rs` so a consumer takes one dependency rather than two, and so
-# `openscion_core::GreetRequest` and `openscion_proto::GreetRequest` are the same
+# `openscion_core::ObjectId` and `openscion_proto::ObjectId` are the same
 # type.
 openscion-proto = { workspace = true }
 thiserror = { workspace = true }
+# Hashes canonical encodings into object ids.
+blake3 = { workspace = true }
 
 [features]
 default = []
