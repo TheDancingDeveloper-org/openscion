@@ -5,7 +5,7 @@ resolver = "3"
 # package: the engine is `crates/openscion`, the same as any other member. Keeping the root virtual is what makes that uniform — a root package
 # would make one crate structurally different from the rest for no reason other
 # than history, and it is the arrangement the upstream template moved away from.
-members = ["crates/*"]
+members = ["crates/*", "benchmarks"]
 # `worktrees/` holds `git worktree` checkouts of this same repository; each
 # contains a full copy of this manifest and every crate under it, so without
 # this entry cargo walks into them and reports duplicate packages.

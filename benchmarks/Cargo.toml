@@ -1,0 +1,23 @@
+[package]
+name = "openscion-benchmarks"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "End-to-end benchmarks comparing OpenScion with git on synthetic repositories."
+readme = "README.md"
+keywords = ["vcs", "source-control", "benchmark"]
+categories = ["development-tools"]
+publish = false
+
+[[bin]]
+name = "openscion-bench"
+path = "src/main.rs"
+
+[dependencies]
+clap = { workspace = true }
+thiserror = { workspace = true }
+
+[lints]
+workspace = true
