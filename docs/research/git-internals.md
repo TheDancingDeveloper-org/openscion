@@ -3,10 +3,9 @@
 Notes on how git stores and models a repository, gathered from git's own format
 documentation, the Pro Git book, and git release notes. This is source material,
 not a spec: what OpenScion actually does is defined in
-[`../specs/`](../specs/openscion-architecture.md). The point of this document is
-to show which git mechanisms OpenScion keeps, which it replaces, and where git's
-costs grow with repository or history size. The last section maps each
-mechanism to the OpenScion spec.
+[`../specs/`](../specs/openscion-architecture.md). It records where git's costs
+grow with repository or history size, and the last section maps each mechanism
+to how the OpenScion spec handles it.
 
 ## Object model
 
@@ -69,10 +68,6 @@ leading zero for directories (`40000`). The modes git writes are:
 | `040000` | subdirectory (another tree) |
 | `160000` | gitlink: a submodule, whose id is a commit in another repository |
 
-Git records only one permission bit (executable or not); the index format
-states that "only 0755 and 0644 are valid for regular files"
-([gitformat-index](https://git-scm.com/docs/gitformat-index)).
-
 Entries are sorted by name bytes, with one twist: a subtree's name is compared
 as if it ended in `/`. So a file `foo.c` sorts before a directory `foo` (`foo/`),
 because `.` (0x2E) is less than `/` (0x2F). Every implementation that writes
@@ -87,13 +82,11 @@ SHA-256 described in the
 [hash-function-transition](https://git-scm.com/docs/hash-function-transition)
 design.
 
-- A SHA-256 repository sets `core.repositoryFormatVersion = 1` and
-  `extensions.objectFormat = sha256` (created with
-  `git init --object-format=sha256`). Older git versions refuse to operate on
-  it rather than misread it.
-- Git 2.42 dropped the "experimental" label on SHA-256 repositories
-  ([release notes](https://imapserver.alvestrand.no/doc/git/RelNotes/2.42.0.txt)).
-  SHA-1 remains the default today.
+- A SHA-256 repository (`git init --object-format=sha256`) sets
+  `core.repositoryFormatVersion = 1` and `extensions.objectFormat = sha256`, so
+  older git refuses to operate on it rather than misread it.
+- Git 2.42 dropped the "experimental" label on SHA-256 repositories; SHA-1
+  remains the default ([2.42 release notes](https://imapserver.alvestrand.no/doc/git/RelNotes/2.42.0.txt)).
 - Interoperability is planned through `extensions.compatObjectFormat`: the
   repository keeps a bidirectional SHA-1 to SHA-256 mapping in its pack
   indexes and in loose-object map files, and translates objects on fetch and
@@ -115,28 +108,22 @@ A new object is first written **loose**: the header and payload are
 zlib-compressed into one file at `objects/<first 2 hex>/<remaining hex>`
 ([gitformat-loose](https://git-scm.com/docs/gitformat-loose)). The two-character
 directory shards the namespace because some filesystems slow down with many
-entries in one directory. Loose objects are not delta-compressed, so every
-version of a large file is stored whole.
-
+entries in one directory. Loose objects are not delta-compressed.
 **Scaling:** one file and one inode per object. Lookup is a filesystem lookup,
 but enumeration, `fsck`, and any scan cost O(number of loose objects).
 
 ### Packfiles
 
 Maintenance and network transfer both use **packfiles**
-([gitformat-pack](https://git-scm.com/docs/gitformat-pack)).
-
-- Header: `PACK`, a 4-byte version (git writes 2), a 4-byte object count.
-- Each entry starts with a variable-length type and size, then zlib data. Types
-  are commit (1), tree (2), blob (3), tag (4), `OFS_DELTA` (6), and
-  `REF_DELTA` (7).
-- An `OFS_DELTA` names its base by a negative offset within the same pack; a
-  `REF_DELTA` names its base by object id. `REF_DELTA` is what makes **thin
-  packs** possible on the wire: deltas against objects the receiver already
-  has, which `index-pack --fix-thin` completes on arrival.
-- A delta is a base size, a result size, then instructions: *copy* a byte range
-  from the base, or *insert* literal bytes.
-- The trailer is a checksum of the whole pack.
+([gitformat-pack](https://git-scm.com/docs/gitformat-pack)). A pack is a
+header (`PACK`, version 2, object count), entries, and a trailing checksum.
+Each entry is a variable-length type and size followed by zlib data; types are
+commit (1), tree (2), blob (3), tag (4), `OFS_DELTA` (6), and `REF_DELTA` (7).
+An `OFS_DELTA` names its base by a negative offset within the same pack; a
+`REF_DELTA` names it by id, which enables **thin packs** on the wire (deltas
+against objects the receiver already has, completed by
+`index-pack --fix-thin`). A delta is a base size, a result size, and a list of
+*copy* (byte range from the base) and *insert* (literal bytes) instructions.
 
 A delta's base can itself be a delta, forming a **delta chain**. When repacking,
 git sorts candidate objects by type, a path-name hash, and size, then tries each
