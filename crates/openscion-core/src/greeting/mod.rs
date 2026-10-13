@@ -16,9 +16,9 @@ use crate::{Error, Result};
 /// # Examples
 ///
 /// ```
-/// # use openscion::greet;
+/// # use openscion_core::greet;
 /// assert_eq!(greet("  Ferris  ")?, "Hello, Ferris!");
-/// # Ok::<(), openscion::Error>(())
+/// # Ok::<(), openscion_core::Error>(())
 /// ```
 ///
 /// # Errors

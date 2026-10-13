@@ -161,7 +161,7 @@ cross-record transaction, which is what lets the metadata store shard.
   boundary — object ids, changesets, refs, requests, responses, and the
   protocol version — with no transport, no runtime, and no behavior. `scn`, the
   daemon, the cache, and any third-party tool depend on it to speak the API.
-- `crates/openscion` holds the engine: hashing, the data model, the log and
+- `crates/openscion-core` holds the engine: hashing, the data model, the log and
   ref stores behind their ports, derived data, and rebase. It is a plain Rust
   library, usable in-process with no transport, and re-exports the protocol
   crate so both name the same types.

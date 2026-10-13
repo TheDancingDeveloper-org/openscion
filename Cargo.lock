@@ -554,8 +554,12 @@ checksum = "384b8ab6d37215f3c5301a95a4accb5d64aa607f1fcb26a11b5303878451b4fe"
 name = "openscion"
 version = "0.2.1"
 dependencies = [
- "openscion-proto",
+ "clap",
+ "openscion-core",
+ "openscion-server",
  "thiserror",
+ "tokio",
+ "ureq",
 ]
 
 [[package]]
@@ -567,15 +571,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "openscion-cli"
+name = "openscion-core"
 version = "0.2.1"
 dependencies = [
- "clap",
- "openscion",
- "openscion-server",
+ "openscion-proto",
  "thiserror",
- "tokio",
- "ureq",
 ]
 
 [[package]]
@@ -592,7 +592,7 @@ version = "0.2.1"
 dependencies = [
  "axum",
  "clap",
- "openscion",
+ "openscion-core",
  "serde_json",
  "thiserror",
  "tokio",

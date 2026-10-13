@@ -7,7 +7,7 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
-use openscion::{Error, greet};
+use openscion_core::{Error, greet};
 
 #[test]
 fn greeting_is_available_to_consumers() {

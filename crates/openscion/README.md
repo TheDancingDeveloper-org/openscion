@@ -1,4 +1,4 @@
-# openscion-cli
+# openscion
 
 `scn`, the OpenScion command-line client. In the full design it lays out a
 sparse working copy, watches it for edits, uploads blobs, and wraps the server's
@@ -7,10 +7,10 @@ history and landing APIs (see
 Today it implements the commands the server can already answer.
 
 ```sh
-cargo run -p openscion-cli -- version
-cargo run -p openscion-cli -- server-info                       # default http://127.0.0.1:7878
-cargo run -p openscion-cli -- server-info --server http://host:7878
-OPENSCION_SERVER=http://host:7878 cargo run -p openscion-cli -- server-info
+cargo run -p openscion -- version
+cargo run -p openscion -- server-info                       # default http://127.0.0.1:7878
+cargo run -p openscion -- server-info --server http://host:7878
+OPENSCION_SERVER=http://host:7878 cargo run -p openscion -- server-info
 ```
 
 | Command | What it does |

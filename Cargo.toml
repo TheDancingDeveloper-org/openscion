@@ -2,7 +2,7 @@
 resolver = "3"
 # Every crate in this repository lives under `crates/`, one directory per
 # package, each directory named for the package it holds. There is no root
-# package: the engine is `crates/openscion`, the same as any other member. Keeping the root virtual is what makes that uniform — a root package
+# package: the engine is `crates/openscion-core`, the same as any other member. Keeping the root virtual is what makes that uniform — a root package
 # would make one crate structurally different from the rest for no reason other
 # than history, and it is the arrangement the upstream template moved away from.
 members = ["crates/*", "benchmarks"]
@@ -23,13 +23,13 @@ repository = "https://github.com/tinyhumansai/openscion"
 
 [workspace.dependencies]
 # The protocol: every payload type that crosses a process boundary.
-# `crates/openscion` depends on it and re-exports it, so a client that only
+# `crates/openscion-core` depends on it and re-exports it, so a client that only
 # makes calls takes this crate alone.
 # No `version` requirement on purpose: the workspace version moves on every
 # release, and a pinned requirement here would stop resolving the moment it did.
 # Nothing in this workspace is published, so the path is the whole address.
 openscion-proto = { path = "crates/openscion-proto" }
-# Derive macros for the crate-wide error type in `crates/openscion/src/error/`.
+# Derive macros for the crate-wide error type in `crates/openscion-core/src/error/`.
 # Every dependency entry should carry a comment like this one saying why it is
 # here.
 thiserror = "2"
@@ -39,7 +39,7 @@ serde = { version = "1", features = ["derive"] }
 # server and CLI encode and decode HTTP bodies with it.
 serde_json = "1"
 # The engine, so the server and CLI crates name the same types the library does.
-openscion = { path = "crates/openscion" }
+openscion-core = { path = "crates/openscion-core" }
 # The server crate, taken by the CLI's integration tests to talk to a real
 # server in-process.
 openscion-server = { path = "crates/openscion-server" }

@@ -17,7 +17,7 @@
 //! # What is deliberately not here
 //!
 //! **No behavior.** Hashing, validation, and every operation live in
-//! `crates/openscion`, which depends on this crate and re-exports it. A payload
+//! `crates/openscion-core`, which depends on this crate and re-exports it. A payload
 //! type describes what a request carries, not what the server does with it.
 //!
 //! **No transport.** This crate holds no connection, client, or codec, and
@@ -28,7 +28,7 @@
 //! # This crate sits underneath the engine, not beside it
 //!
 //! `openscion` **depends on this crate and re-exports all of it**, so
-//! `openscion::GreetRequest` and `openscion_proto::greeting::GreetRequest` are
+//! `openscion_core::GreetRequest` and `openscion_proto::greeting::GreetRequest` are
 //! the *same type*, not structural twins. A parallel set of payload types for
 //! clients would mean a conversion at every call site that nothing checks.
 //!

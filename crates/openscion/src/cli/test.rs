@@ -5,7 +5,7 @@
 use std::io::{self, Write};
 
 use clap::Parser;
-use openscion::PROTOCOL_VERSION;
+use openscion_core::PROTOCOL_VERSION;
 
 use super::{Cli, Command, DEFAULT_SERVER, run};
 use crate::Error;

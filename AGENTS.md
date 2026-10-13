@@ -26,7 +26,7 @@ done; these items are still open:
 This is a Rust 2024 cargo workspace rooted at a virtual `Cargo.toml`. Every
 crate lives under `crates/`, one directory per package, each directory named for
 the package it holds. There is no root package: the engine is
-`crates/openscion`, the same as any other member. Server, daemon, cache, and
+`crates/openscion-core`, the same as any other member. Server, daemon, cache, and
 `scn` binaries arrive as their own crates in later phases.
 
 ```text
@@ -63,8 +63,8 @@ boundary and the protocol version. It has no transport, no runtime, and no
 behavior, and CI asserts it stays that way. A client that only makes calls
 depends on it alone.
 
-`crates/openscion` depends on it and re-exports all of it, so
-`openscion::GreetRequest` and `openscion_proto::GreetRequest` are the *same*
+`crates/openscion-core` depends on it and re-exports all of it, so
+`openscion_core::GreetRequest` and `openscion_proto::GreetRequest` are the *same*
 type rather than structural twins. That direction is load-bearing: a parallel
 set of payload types for clients would mean a conversion at every call site
 that nothing checks.
@@ -101,7 +101,7 @@ broad ones.
 
 Keep public exports centralized in each crate's `src/lib.rs` so downstream users
 have one predictable surface. Put shared error variants in
-`crates/openscion/src/error/mod.rs` and return the crate-wide `Result<T>` from
+`crates/openscion-core/src/error/mod.rs` and return the crate-wide `Result<T>` from
 fallible public APIs.
 
 ## Build And Test
@@ -121,7 +121,7 @@ Supporting commands:
 - `cargo fmt --all` — format before committing.
 - `cargo test <filter>` — run a focused subset while iterating.
 - `cargo test -p openscion-proto` — run one crate's suite.
-- `cargo run -p openscion --example basic` — run the bundled example.
+- `cargo run -p openscion-core --example basic` — run the bundled example.
 - `cargo doc --no-deps --all-features` — build the rustdoc CI also builds with
   `RUSTDOCFLAGS="-D warnings"`.
 - `cargo test --doc` — run doctests alone when editing documentation examples.

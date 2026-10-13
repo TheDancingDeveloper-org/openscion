@@ -26,7 +26,7 @@ with a conversion at every call site that nothing checks.
 ## What is deliberately absent
 
 **No behavior.** Hashing, validation, and every operation live in
-`crates/openscion`. A payload type describes what a request carries, not what
+`crates/openscion-core`. A payload type describes what a request carries, not what
 the server does with it.
 
 **No transport.** No connection, client, codec, async runtime, HTTP client, or

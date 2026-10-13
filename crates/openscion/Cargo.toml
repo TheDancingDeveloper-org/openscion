@@ -5,23 +5,29 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
-description = "A server-centric, content-addressed source control engine for agent-scale monorepos."
+description = "scn, the OpenScion command-line client."
 documentation = "https://docs.rs/openscion"
-readme = "../../README.md"
-keywords = ["vcs", "source-control", "monorepo", "changeset"]
-categories = ["development-tools"]
+readme = "README.md"
+keywords = ["vcs", "source-control", "monorepo", "cli"]
+categories = ["command-line-utilities", "development-tools"]
 publish = false
 
-[dependencies]
-# The protocol: payload types and the protocol version. Re-exported wholesale
-# from `src/lib.rs` so a consumer takes one dependency rather than two, and so
-# `openscion::GreetRequest` and `openscion_proto::GreetRequest` are the same
-# type.
-openscion-proto = { workspace = true }
-thiserror = { workspace = true }
+[[bin]]
+name = "scn"
+path = "src/main.rs"
 
-[features]
-default = []
+[dependencies]
+# The engine and, through its re-export, the protocol payloads the client
+# decodes and the bind rule it applies.
+openscion-core = { workspace = true }
+clap = { workspace = true }
+thiserror = { workspace = true }
+ureq = { workspace = true }
+
+[dev-dependencies]
+# Tests run a real server in-process and point the client at it.
+openscion-server = { workspace = true }
+tokio = { workspace = true }
 
 [lints]
 workspace = true

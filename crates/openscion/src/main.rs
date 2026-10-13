@@ -3,7 +3,7 @@
 use std::process::ExitCode;
 
 use clap::Parser;
-use openscion_cli::{Cli, run};
+use openscion::{Cli, run};
 
 fn main() -> ExitCode {
     let cli = Cli::parse();

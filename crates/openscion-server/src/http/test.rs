@@ -2,7 +2,7 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
-use openscion::{PROTOCOL_VERSION, ServerInfo};
+use openscion_core::{PROTOCOL_VERSION, ServerInfo};
 use tokio::sync::oneshot;
 
 use super::Server;

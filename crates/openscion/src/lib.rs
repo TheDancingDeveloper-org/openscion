@@ -1,58 +1,38 @@
-//! The OpenScion engine: a server-centric, content-addressed source control
-//! system for monorepos whose clients are mostly always-online agents and jobs.
+//! `scn`, the OpenScion command-line client.
 //!
-//! The design is specified in `docs/specs/`: the architecture, the data model
-//! (objects, changesets, the log, refs, derived data), and the API. This crate
-//! will hold the engine those specs describe — hashing, validation, the log and
-//! ref stores behind their ports, derived data, and server-side rebase — as a
-//! plain library usable in-process with no transport.
+//! In the full design (`docs/specs/openscion-architecture.md`) `scn` lays out
+//! a sparse working copy, watches it for edits, uploads blobs, and wraps the
+//! server's history and landing APIs. Today it implements the commands the
+//! server can already answer:
 //!
-//! # Layout
+//! | Command | What it does |
+//! | --- | --- |
+//! | `scn version` | prints the client and protocol versions |
+//! | `scn server-info` | asks the server for its version and checks the protocol binds |
 //!
-//! This is the engine half of a two-crate workspace:
-//!
-//! - [`openscion_proto`] — the protocol. Payload types and the protocol
-//!   version, with no transport and no behavior. A client that only makes calls
-//!   depends on that crate alone.
-//! - `openscion` — this crate. The behavior and the crate-wide error type.
-//!
-//! Within this crate:
-//!
-//! - `src/error/` holds the crate-wide [`Error`] enum and the [`Result`] alias
-//!   returned by every fallible public function.
-//! - Each feature area lives in its own module directory with a `mod.rs`
-//!   module root, an optional `types.rs`, and a `test.rs` holding its unit
-//!   tests.
-//! - Every public item is re-exported from here — including all of
-//!   [`openscion_proto`] — so downstream users have a single predictable
-//!   surface and `openscion::GreetRequest` is the *same type* as
-//!   `openscion_proto::GreetRequest`.
+//! Every command that talks to a server takes `--server <url>` or the
+//! `OPENSCION_SERVER` environment variable, defaulting to
+//! [`DEFAULT_SERVER`].
 //!
 //! # Example
 //!
-//! The only behavior today is the placeholder kept from the project template;
-//! phase 1 of the architecture spec replaces it with the core data model.
-//!
 //! ```
-//! use openscion::{greet, Error, GreetRequest};
+//! use clap::Parser;
+//! use openscion::{Cli, run};
 //!
-//! assert_eq!(greet("Ferris")?, "Hello, Ferris!");
-//! assert_eq!(greet("   ").unwrap_err(), Error::EmptyName);
-//! assert_eq!(GreetRequest::new("Ferris").name, "Ferris");
+//! let cli = Cli::parse_from(["scn", "version"]);
+//! let mut out = Vec::new();
+//! run(&cli, &mut out)?;
+//! assert!(String::from_utf8(out).unwrap().starts_with("scn "));
 //! # Ok::<(), openscion::Error>(())
 //! ```
 
+mod cli;
+mod client;
 mod error;
-mod greeting;
+#[cfg(test)]
+mod test_support;
 
+pub use cli::{Cli, Command, DEFAULT_SERVER, run};
+pub use client::ServerClient;
 pub use error::{Error, Result};
-pub use greeting::greet;
-
-// The protocol, re-exported by module rather than by item so every path
-// through this crate resolves to the same definitions the protocol crate
-// publishes. A client may depend on `openscion-proto` directly and get exactly
-// these types; nothing here redefines them.
-pub use openscion_proto;
-pub use openscion_proto::{
-    GreetRequest, GreetResponse, PROTOCOL_VERSION, ServerInfo, is_compatible, server, version,
-};

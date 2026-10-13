@@ -6,7 +6,7 @@
 use std::io::Write;
 
 use clap::{Parser, Subcommand};
-use openscion::PROTOCOL_VERSION;
+use openscion_core::PROTOCOL_VERSION;
 
 use crate::{Error, Result, ServerClient};
 

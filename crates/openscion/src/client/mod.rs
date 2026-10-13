@@ -4,7 +4,7 @@
 //! The client checks the protocol version on [`ServerClient::info`], so a
 //! caller that starts there never talks to a server it cannot understand.
 
-use openscion::{ServerInfo, is_compatible};
+use openscion_core::{ServerInfo, is_compatible};
 
 use crate::{Error, Result};
 
@@ -21,7 +21,7 @@ impl ServerClient {
     /// # Examples
     ///
     /// ```
-    /// # use openscion_cli::ServerClient;
+    /// # use openscion::ServerClient;
     /// let client = ServerClient::new("http://127.0.0.1:7878/");
     /// assert_eq!(client.base(), "http://127.0.0.1:7878");
     /// ```

@@ -10,7 +10,7 @@ use std::net::SocketAddr;
 
 use axum::routing::get;
 use axum::{Json, Router};
-use openscion::{PROTOCOL_VERSION, ServerInfo};
+use openscion_core::{PROTOCOL_VERSION, ServerInfo};
 use tokio::net::TcpListener;
 
 use crate::{Error, Result, ServerConfig};

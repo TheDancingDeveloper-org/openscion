@@ -7,7 +7,7 @@
 //! cargo run --example basic
 //! ```
 
-use openscion::{Result, greet};
+use openscion_core::{Result, greet};
 
 fn main() -> Result<()> {
     println!("{}", greet("Rust")?);

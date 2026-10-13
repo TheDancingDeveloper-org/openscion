@@ -1,28 +1,40 @@
-//! Crate-wide error and result types.
-//!
-//! Every fallible public function in this crate returns [`Result`], and every
-//! failure mode is a distinct [`Error`] variant. Add a variant rather than
-//! encoding new context into an existing message: callers match on variants,
-//! and message text is not a stable API.
-//!
-//! Variants carry the data a caller needs to react, keep their `#[error]`
-//! message lowercase and free of trailing punctuation, and are documented so
-//! the rendered rustdoc explains when each one occurs.
+//! Crate-wide error and result types for the client.
 
-/// Errors returned by this crate.
-#[derive(Debug, thiserror::Error, PartialEq, Eq)]
+use openscion_core::PROTOCOL_VERSION;
+
+/// Errors returned by `scn`.
+#[derive(Debug, thiserror::Error)]
 #[non_exhaustive]
 pub enum Error {
-    /// A required name was empty or contained only whitespace.
-    #[error("name must not be empty")]
-    EmptyName,
+    /// The server could not be reached, or answered with an error status.
+    #[error("request to {url} failed: {message}")]
+    Request {
+        /// The URL that was requested.
+        url: String,
+        /// What went wrong, as reported by the HTTP client.
+        message: String,
+    },
+    /// The server answered, but not with the payload the protocol defines.
+    #[error("unexpected response from {url}: {message}")]
+    Decode {
+        /// The URL that was requested.
+        url: String,
+        /// Why the body could not be decoded.
+        message: String,
+    },
+    /// The server speaks a protocol version this client cannot bind to.
+    #[error(
+        "server speaks protocol {}.{}, which this client ({}.{}) cannot use",
+        server.0, server.1, PROTOCOL_VERSION.0, PROTOCOL_VERSION.1
+    )]
+    IncompatibleProtocol {
+        /// The server's protocol version.
+        server: (u32, u32),
+    },
+    /// Writing command output failed.
+    #[error("cannot write output: {0}")]
+    Output(#[source] std::io::Error),
 }
 
-/// The crate's standard result type.
-///
-/// Use this alias in public signatures instead of spelling out
-/// `std::result::Result<T, Error>`.
+/// The client's standard result type.
 pub type Result<T> = std::result::Result<T, Error>;
-
-#[cfg(test)]
-mod test;

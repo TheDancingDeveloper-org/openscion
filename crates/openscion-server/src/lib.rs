@@ -45,4 +45,4 @@ mod http;
 pub use config::{DEFAULT_LISTEN, ServerConfig};
 pub use error::{Error, Result};
 pub use http::{Server, router, shutdown_signal};
-pub use openscion::ServerInfo;
+pub use openscion_core::ServerInfo;

@@ -19,7 +19,7 @@ path = "src/main.rs"
 [dependencies]
 # The engine and, through its re-export, the protocol payloads this server
 # answers with.
-openscion = { workspace = true }
+openscion-core = { workspace = true }
 axum = { workspace = true }
 clap = { workspace = true }
 thiserror = { workspace = true }
