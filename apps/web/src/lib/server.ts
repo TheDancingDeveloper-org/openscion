@@ -1,5 +1,7 @@
 import "server-only";
 
+import { connection } from "next/server";
+
 /**
  * Access to the openscion-server HTTP API.
  *
@@ -78,10 +80,13 @@ function describeError(error: unknown): string {
 /**
  * Fetches `GET /v1/version` from openscion-server.
  *
- * Never throws: network failures, timeouts, non-2xx responses, and malformed
+ * Waits for an incoming request first, so the result (and the configured URL)
+ * is always read at request time rather than baked in at build time. Never
+ * throws: network failures, timeouts, non-2xx responses, and malformed
  * bodies all come back as `{ status: "unreachable" }` with a reason.
  */
 export async function probeVersion(): Promise<VersionProbe> {
+  await connection();
   const url = serverUrl();
   try {
     const response = await fetch(`${url}/v1/version`, {
