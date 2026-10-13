@@ -3,50 +3,74 @@
 //!
 //! The design is specified in `docs/specs/`: the architecture, the data model
 //! (objects, changesets, the log, refs, derived data), and the API. This crate
-//! will hold the engine those specs describe — hashing, validation, the log and
-//! ref stores behind their ports, derived data, and server-side rebase — as a
-//! plain library usable in-process with no transport.
+//! is the engine those specs describe, as a plain library usable in-process
+//! with no transport. Today it holds the phase-1 MVP:
+//!
+//! - [`object_id`] — BLAKE3 ids over canonical encodings.
+//! - [`encode_tree`], [`decode_tree`], [`encode_changeset`] — the canonical
+//!   encodings, and [`FrameWriter`] / [`decode_frames`] for batched transfer.
+//! - [`MemoryObjectStore`] — blobs and trees by id.
+//! - [`Repository`] — validation, root-tree derivation by path copying, the
+//!   append-only log, and compare-and-swap refs.
+//! - [`Clock`] — the time port, with [`SystemClock`] and [`FixedClock`].
+//!
+//! # What is deliberately not here
+//!
+//! Persistence, derived data beyond root trees (generation numbers, skip
+//! lists, path history), rebase, and landing arrive in later phases. There is
+//! no transport: `openscion-server` puts this engine behind HTTP.
 //!
 //! # Layout
 //!
-//! This is the engine half of a two-crate workspace:
+//! This is the engine half of a two-crate pair:
 //!
 //! - [`openscion_proto`] — the protocol. Payload types and the protocol
 //!   version, with no transport and no behavior. A client that only makes calls
 //!   depends on that crate alone.
 //! - `openscion-core` — this crate. The behavior and the crate-wide error type.
 //!
-//! Within this crate:
-//!
-//! - `src/error/` holds the crate-wide [`Error`] enum and the [`Result`] alias
-//!   returned by every fallible public function.
-//! - Each feature area lives in its own module directory with a `mod.rs`
-//!   module root, an optional `types.rs`, and a `test.rs` holding its unit
-//!   tests.
-//! - Every public item is re-exported from here — including all of
-//!   [`openscion_proto`] — so downstream users have a single predictable
-//!   surface and `openscion_core::GreetRequest` is the *same type* as
-//!   `openscion_proto::GreetRequest`.
+//! Every public item is re-exported from here — including all of
+//! [`openscion_proto`] — so `openscion_core::ObjectId` is the *same type* as
+//! `openscion_proto::ObjectId`.
 //!
 //! # Example
 //!
-//! The only behavior today is the placeholder kept from the project template;
-//! phase 1 of the architecture spec replaces it with the core data model.
-//!
 //! ```
-//! use openscion_core::{greet, Error, GreetRequest};
+//! use openscion_core::{Change, CreateChangeset, EntryKind, Repository, RepoPath, UpdateRef};
 //!
-//! assert_eq!(greet("Ferris")?, "Hello, Ferris!");
-//! assert_eq!(greet("   ").unwrap_err(), Error::EmptyName);
-//! assert_eq!(GreetRequest::new("Ferris").name, "Ferris");
+//! let mut repo = Repository::new();
+//! let blob = repo.put_blob(b"hello\n");
+//! let path = RepoPath::new("docs/hello.txt")?;
+//! let first = repo.create_changeset(CreateChangeset::new(
+//!     vec![],
+//!     vec![Change::Upsert { path: path.clone(), kind: EntryKind::File, blob }],
+//!     "agent",
+//!     "add hello",
+//! ))?;
+//! let second = repo.create_changeset(CreateChangeset::new(
+//!     vec![first.id],
+//!     vec![Change::Delete { path }],
+//!     "agent",
+//!     "remove hello",
+//! ))?;
+//! repo.update_ref("main", UpdateRef::new(None, second.id))?;
+//! assert!(repo.tree(second.root_tree)?.is_empty());
 //! # Ok::<(), openscion_core::Error>(())
 //! ```
 
+mod clock;
+mod encoding;
 mod error;
-mod greeting;
+mod hash;
+mod repo;
+mod store;
 
+pub use clock::{Clock, FixedClock, SystemClock};
+pub use encoding::{FrameWriter, decode_frames, decode_tree, encode_changeset, encode_tree};
 pub use error::{Error, Result};
-pub use greeting::greet;
+pub use hash::object_id;
+pub use repo::{MAX_CHANGES, Repository};
+pub use store::MemoryObjectStore;
 
 // The protocol, re-exported by module rather than by item so every path
 // through this crate resolves to the same definitions the protocol crate
@@ -54,5 +78,7 @@ pub use greeting::greet;
 // these types; nothing here redefines them.
 pub use openscion_proto;
 pub use openscion_proto::{
-    GreetRequest, GreetResponse, PROTOCOL_VERSION, ServerInfo, is_compatible, server, version,
+    Change, Changeset, ChangesetInfo, ChangesetRecord, CreateChangeset, EntryKind, ErrorBody,
+    FetchObjects, ObjectId, ObjectKind, PROTOCOL_VERSION, ParseIdError, PathError, RefValue,
+    RepoPath, ServerInfo, StoredObjects, TreeEntry, UpdateRef, is_compatible, server, version,
 };
