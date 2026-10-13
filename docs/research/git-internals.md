@@ -191,19 +191,13 @@ reachable objects.
 
 The [commit-graph](https://git-scm.com/docs/gitformat-commit-graph) file is a
 derived cache of the commit DAG, so history walks need not inflate and parse
-commit objects.
-
-- Chunks: `OIDF`/`OIDL` (fan-out and sorted ids), `CDAT` (per commit: root
-  tree id, the positions of the first two parents, a 30-bit generation number,
-  and a 34-bit commit time), `EDGE` (extra parents of octopus merges), `GDA2`
-  and `GDO2` (corrected commit date offsets and their overflow), and
-  `BIDX`/`BDAT` (Bloom filters).
-- Parents are stored as **positions** in the file, not ids, so walking a
-  parent is an array index.
-- Files can form a **chain** (`info/commit-graphs/commit-graph-chain`) of
-  layers, merged when a layer has fewer than twice the commits of the layer
-  below, so writes are incremental
-  ([commit-graph design](https://git-scm.com/docs/commit-graph)).
+commit objects. Its chunks are `OIDF`/`OIDL` (fan-out and sorted ids), `CDAT`
+(per commit: root tree id, the positions of the first two parents, a 30-bit
+generation number, and a 34-bit commit time), `EDGE` (extra octopus parents),
+`GDA2`/`GDO2` (corrected commit date offsets and overflow), and `BIDX`/`BDAT`
+(Bloom filters). Parents are stored as **positions**, so walking a parent is an
+array index. Files can form a **chain** of layers, merged when a layer has
+fewer than twice the commits of the one below, so writes are incremental.
 
 **Generation numbers.** Two definitions exist
 ([commit-graph design](https://git-scm.com/docs/commit-graph)):
