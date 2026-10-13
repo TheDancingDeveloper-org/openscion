@@ -6,24 +6,24 @@
 use std::process::ExitCode;
 
 use clap::Parser;
-use openscion_server::{Server, ServerConfig, shutdown_signal};
+use openscion_server::{Result, Server, ServerConfig, shutdown_signal};
 
 #[tokio::main]
 async fn main() -> ExitCode {
-    let config = ServerConfig::parse();
-    let server = match Server::bind(&config).await {
-        Ok(server) => server,
-        Err(error) => {
-            eprintln!("openscion-server: {error}");
-            return ExitCode::FAILURE;
-        }
-    };
-    println!("openscion-server listening on http://{}", server.local_addr());
-    match server.serve(shutdown_signal()).await {
+    match run(ServerConfig::parse()).await {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
             eprintln!("openscion-server: {error}");
             ExitCode::FAILURE
         }
     }
+}
+
+async fn run(config: ServerConfig) -> Result<()> {
+    let server = Server::bind(&config).await?;
+    println!(
+        "openscion-server listening on http://{}",
+        server.local_addr()
+    );
+    server.serve(shutdown_signal()).await
 }

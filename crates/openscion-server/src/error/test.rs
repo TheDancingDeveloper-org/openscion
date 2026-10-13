@@ -10,7 +10,11 @@ fn a_bind_error_names_the_address() {
         addr: "127.0.0.1:7878".parse().unwrap_or_else(|_| unreachable!()),
         source: io::Error::from(io::ErrorKind::AddrInUse),
     };
-    assert!(error.to_string().starts_with("cannot listen on 127.0.0.1:7878: "));
+    assert!(
+        error
+            .to_string()
+            .starts_with("cannot listen on 127.0.0.1:7878: ")
+    );
 }
 
 #[test]

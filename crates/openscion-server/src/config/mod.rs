@@ -15,7 +15,11 @@ pub const DEFAULT_LISTEN: &str = "127.0.0.1:7878";
 
 /// How the server is configured.
 #[derive(Debug, Clone, PartialEq, Eq, Parser)]
-#[command(name = "openscion-server", version, about = "Serve the OpenScion API over HTTP")]
+#[command(
+    name = "openscion-server",
+    version,
+    about = "Serve the OpenScion API over HTTP"
+)]
 #[non_exhaustive]
 pub struct ServerConfig {
     /// Address to listen on. Port 0 picks a free port.

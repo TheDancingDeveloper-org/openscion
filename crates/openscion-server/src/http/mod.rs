@@ -56,9 +56,7 @@ impl Server {
             addr: config.listen,
             source,
         };
-        let listener = TcpListener::bind(config.listen)
-            .await
-            .map_err(bind_error)?;
+        let listener = TcpListener::bind(config.listen).await.map_err(bind_error)?;
         let local_addr = listener.local_addr().map_err(bind_error)?;
         Ok(Self {
             listener,

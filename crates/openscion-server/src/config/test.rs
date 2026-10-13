@@ -16,8 +16,8 @@ fn the_default_listens_on_loopback() {
 
 #[test]
 fn listen_is_read_from_the_command_line() {
-    let config = ServerConfig::try_parse_from(["openscion-server", "--listen", "0.0.0.0:9000"])
-        .unwrap();
+    let config =
+        ServerConfig::try_parse_from(["openscion-server", "--listen", "0.0.0.0:9000"]).unwrap();
     assert_eq!(config.listen, "0.0.0.0:9000".parse().unwrap());
 }
 
