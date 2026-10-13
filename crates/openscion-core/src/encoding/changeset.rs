@@ -12,10 +12,10 @@ const FORMAT_VERSION: u8 = 1;
 /// by its UTF-8 bytes. Changes are written in the order given, which for a
 /// stored [`Changeset`] is path order.
 ///
-/// # Panics
-///
-/// Panics if a count or string length exceeds `u32::MAX`, which the engine's
-/// change limit and the path rules rule out for any changeset it accepts.
+/// Counts and lengths are written as `u32`. The repository bounds every count
+/// and string far below that before it encodes anything, so a value that does
+/// not fit is never produced for a changeset it accepts; one that somehow did
+/// would saturate and still encode deterministically.
 #[must_use]
 pub fn encode_changeset(changeset: &Changeset) -> Vec<u8> {
     let mut out = vec![FORMAT_VERSION];
@@ -50,7 +50,7 @@ pub fn encode_changeset(changeset: &Changeset) -> Vec<u8> {
 }
 
 fn put_len(out: &mut Vec<u8>, len: usize) {
-    let len = u32::try_from(len).expect("lengths are bounded well below u32::MAX");
+    let len = u32::try_from(len).unwrap_or(u32::MAX);
     out.extend_from_slice(&len.to_be_bytes());
 }
 

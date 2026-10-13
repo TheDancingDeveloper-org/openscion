@@ -7,7 +7,7 @@ use openscion_proto::{
     Change, ChangesetInfo, CreateChangeset, EntryKind, ObjectId, ObjectKind, RepoPath, UpdateRef,
 };
 
-use super::{MAX_CHANGES, Repository};
+use super::{MAX_CHANGES, MAX_TEXT, Repository};
 use crate::{Error, FixedClock, encode_tree, object_id};
 
 fn path(text: &str) -> RepoPath {
@@ -211,6 +211,18 @@ fn rejects_too_many_changes() {
     assert_eq!(
         rule(commit(&mut repo, &[root], changes)),
         "too many changes"
+    );
+}
+
+#[test]
+fn rejects_oversized_text() {
+    let (mut repo, root) = seeded();
+    let change = upsert(&mut repo, "top.txt", b"new");
+    let mut request = CreateChangeset::new(vec![root.id], vec![change], "t", "m");
+    request.message = "m".repeat(MAX_TEXT + 1);
+    assert_eq!(
+        rule(repo.create_changeset(request)),
+        "text or metadata too large"
     );
 }
 

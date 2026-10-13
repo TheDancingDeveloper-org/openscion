@@ -28,6 +28,9 @@ use types::LogEntry;
 /// The most changes one changeset may carry.
 pub const MAX_CHANGES: usize = 100_000;
 
+/// The longest an author, message, or metadata string may be, in bytes.
+pub const MAX_TEXT: usize = 1 << 20;
+
 /// An in-memory OpenScion repository.
 ///
 /// # Examples
@@ -167,6 +170,19 @@ impl Repository {
         }
         if changeset.changes.len() > MAX_CHANGES {
             return Err(invalid("", "too many changes"));
+        }
+        let texts = [&changeset.author, &changeset.message];
+        let metadata = changeset
+            .metadata
+            .iter()
+            .flat_map(|(key, value)| [key, value]);
+        if changeset.metadata.len() > MAX_CHANGES
+            || texts
+                .into_iter()
+                .chain(metadata)
+                .any(|text| text.len() > MAX_TEXT)
+        {
+            return Err(invalid("", "text or metadata too large"));
         }
         for pair in changeset.changes.windows(2) {
             if pair[0].path() == pair[1].path() {
