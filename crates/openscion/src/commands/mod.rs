@@ -35,18 +35,31 @@ const UPLOAD_BATCH_BYTES: usize = 64 << 20;
 const FETCH_BATCH: usize = 4096;
 
 /// Uploads blobs in batches of at most [`UPLOAD_BATCH_BYTES`].
-fn upload(client: &ServerClient, blobs: &[(ObjectId, Vec<u8>)]) -> Result<()> {
+fn upload(client: &ServerClient, blobs: &[(ObjectId, Vec<u8>)]) -> Result<usize> {
+    upload_in_batches(client, blobs, UPLOAD_BATCH_BYTES)
+}
+
+/// Uploads blobs, starting a new request whenever the next blob would push
+/// the current one past `batch_bytes`. Returns the number of requests sent.
+fn upload_in_batches(
+    client: &ServerClient,
+    blobs: &[(ObjectId, Vec<u8>)],
+    batch_bytes: usize,
+) -> Result<usize> {
+    let mut requests = 0;
     let mut frames = FrameWriter::new();
     for (id, bytes) in blobs {
-        if !frames.is_empty() && frames.len() + bytes.len() > UPLOAD_BATCH_BYTES {
+        if !frames.is_empty() && frames.len() + bytes.len() > batch_bytes {
+            requests += 1;
             client.upload_blobs(&std::mem::take(&mut frames).finish())?;
         }
         frames.push(*id, bytes);
     }
     if !frames.is_empty() {
+        requests += 1;
         client.upload_blobs(&frames.finish())?;
     }
-    Ok(())
+    Ok(requests)
 }
 
 #[cfg(test)]

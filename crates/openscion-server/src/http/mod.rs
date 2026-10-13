@@ -77,12 +77,6 @@ impl Server {
         self.local_addr
     }
 
-    /// The repository this server serves, shared with its handlers.
-    #[must_use]
-    pub fn repository(&self) -> SharedRepository {
-        Arc::clone(&self.repository)
-    }
-
     /// Serves [`router`] until `shutdown` resolves, then finishes in-flight
     /// requests and returns.
     ///

@@ -238,3 +238,17 @@ fn fetched_objects_are_verified() {
         Error::Engine(openscion_core::Error::NotFound(id)) if id == missing
     ));
 }
+
+#[test]
+fn uploads_are_split_into_batches() {
+    let client = ServerClient::new(real_server());
+    let blobs: Vec<_> = [b"aaaa", b"bbbb", b"cccc"]
+        .iter()
+        .map(|bytes| (object_id(ObjectKind::Blob, *bytes), bytes.to_vec()))
+        .collect();
+    // Each frame is 40 bytes of header plus 4 of body: two fit in 100 bytes.
+    assert_eq!(super::upload_in_batches(&client, &blobs, 100).unwrap(), 2);
+    assert_eq!(super::upload_in_batches(&client, &[], 100).unwrap(), 0);
+    let ids: Vec<_> = blobs.iter().map(|(id, _)| *id).collect();
+    assert!(!client.fetch_objects(ids).unwrap().is_empty());
+}
