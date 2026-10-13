@@ -31,6 +31,8 @@ use crate::{Result, ServerClient};
 
 /// Upload batches are cut at this many bytes of blob data.
 const UPLOAD_BATCH_BYTES: usize = 64 << 20;
+/// The bytes a frame adds before its body: the id and a `u64` length.
+const FRAME_HEADER: usize = ObjectId::LEN + 8;
 /// Fetch requests name at most this many objects.
 const FETCH_BATCH: usize = 4096;
 
@@ -49,7 +51,8 @@ fn upload_in_batches(
     let mut requests = 0;
     let mut frames = FrameWriter::new();
     for (id, bytes) in blobs {
-        if !frames.is_empty() && frames.len() + bytes.len() > batch_bytes {
+        let frame = FRAME_HEADER + bytes.len();
+        if !frames.is_empty() && frames.len() + frame > batch_bytes {
             requests += 1;
             client.upload_blobs(&std::mem::take(&mut frames).finish())?;
         }
