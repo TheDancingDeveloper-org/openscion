@@ -311,16 +311,12 @@ fn rejects_a_file_over_a_directory() {
 }
 
 #[test]
-fn a_corrupt_parent_tree_is_reported() {
+fn a_corrupt_base_tree_is_reported() {
+    // The API never writes a tree that points at a blob as a directory, so
+    // build one by hand and derive from it directly.
     let mut repo = Repository::new();
-    // A tree whose only entry points at a "tree" that is really a blob.
     let blob = repo.put_blob(b"not a tree");
-    let change = upsert(&mut repo, "d/f", b"f");
-    let root = commit(&mut repo, &[], vec![change]).unwrap();
-    // Point the snapshot's `d` at the blob by rewriting history directly is
-    // impossible through the API, so check the decoder path instead.
     assert!(matches!(repo.tree(blob), Err(Error::Malformed { .. })));
-    assert!(repo.tree(root.root_tree).is_ok());
     let entry = openscion_proto::TreeEntry::new("d", EntryKind::Tree, blob);
     let bogus = repo.objects.put(ObjectKind::Tree, &encode_tree(&[entry]));
     let error =
