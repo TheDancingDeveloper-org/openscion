@@ -11,6 +11,7 @@
 //!
 //! - [`greeting`] — a placeholder payload family kept from the project
 //!   template. Phase 1 replaces it with object ids, changesets, and refs.
+//! - [`server`] — [`ServerInfo`], what a server reports about itself.
 //! - [`version`] — [`PROTOCOL_VERSION`] and the [`is_compatible`] bind rule.
 //!
 //! # What is deliberately not here
@@ -48,7 +49,9 @@
 //! ```
 
 pub mod greeting;
+pub mod server;
 pub mod version;
 
 pub use greeting::{GreetRequest, GreetResponse};
+pub use server::ServerInfo;
 pub use version::{PROTOCOL_VERSION, is_compatible};
