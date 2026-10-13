@@ -185,14 +185,12 @@ re-encoding objects (`multi` extends this across packs in a multi-pack index).
 Reusing stored deltas also avoids inflating objects at all.
 
 **Delta islands.** Reuse fails when an on-disk delta's base is something the
-client will not receive; the server must then "break" the delta and search for
-a new one at high CPU cost. This happens when one repository stores several
-groups of refs that clients fetch separately, such as forks sharing an object
-store. `pack.island` groups refs into islands, and pack-objects refuses to
-delta an object against a base not present in all of its islands, trading
-slightly larger packs for packs that never cross island boundaries
+client will not receive; the server must "break" the delta and search for a new
+one at high CPU cost. This bites when one object store holds several groups of
+refs fetched separately, such as forks. `pack.island` groups refs into islands
+and forbids deltas against a base not in all of an object's islands, trading
+slightly larger packs for reusable ones
 ([git-pack-objects](https://git-scm.com/docs/git-pack-objects#_delta_islands)).
-`pack.islandCore` places the most commonly cloned island first in the pack.
 
 **Caching whole responses.** `uploadpack.packObjectsHook` makes upload-pack run
 a configured command in place of `git pack-objects`, feeding it the same input
