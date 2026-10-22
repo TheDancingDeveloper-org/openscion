@@ -1,0 +1,90 @@
+full-clone	git-full-history	1	352.7	
+full-clone	git-depth1	1	382.1	
+full-clone	opnscn	1	37.4	
+sparse-clone	git-partial	1	181.0	
+sparse-clone	git-partial-depth1	1	112.4	
+sparse-clone	opnscn	1	16.7	
+commit-one-file	git-commit	1	60.2	
+commit-one-file	git-push	1	21.7	
+commit-one-file	opnscn	1	7.3	
+log-path	git	1	7.4	
+log-path	opnscn-api-walk	1	54.6	
+diff-20	git	1	4.9	
+diff-20	opnscn-api-walk	1	26.9	
+blame	git	1	16.2	
+full-clone	git-full-history	2	343.0	
+full-clone	git-depth1	2	227.5	
+full-clone	opnscn	2	38.7	
+sparse-clone	git-partial	2	140.7	
+sparse-clone	git-partial-depth1	2	123.8	
+sparse-clone	opnscn	2	19.2	
+commit-one-file	git-commit	2	66.0	
+commit-one-file	git-push	2	23.1	
+commit-one-file	opnscn	2	10.5	
+log-path	git	2	7.8	
+log-path	opnscn-api-walk	2	62.6	
+diff-20	git	2	5.3	
+diff-20	opnscn-api-walk	2	27.6	
+blame	git	2	11.1	
+full-clone	git-full-history	3	380.5	
+full-clone	git-depth1	3	227.0	
+full-clone	opnscn	3	36.5	
+sparse-clone	git-partial	3	155.7	
+sparse-clone	git-partial-depth1	3	330.9	
+sparse-clone	opnscn	3	18.9	
+commit-one-file	git-commit	3	40.6	
+commit-one-file	git-push	3	22.3	
+commit-one-file	opnscn	3	10.6	
+log-path	git	3	8.7	
+log-path	opnscn-api-walk	3	55.5	
+diff-20	git	3	5.5	
+diff-20	opnscn-api-walk	3	30.7	
+blame	git	3	16.1	
+full-clone	git-full-history	4	353.7	
+full-clone	git-depth1	4	220.7	
+full-clone	opnscn	4	39.8	
+sparse-clone	git-partial	4	140.3	
+sparse-clone	git-partial-depth1	4	116.4	
+sparse-clone	opnscn	4	13.8	
+commit-one-file	git-commit	4	47.1	
+commit-one-file	git-push	4	22.7	
+commit-one-file	opnscn	4	6.4	
+log-path	git	4	6.7	
+log-path	opnscn-api-walk	4	46.4	
+diff-20	git	4	4.7	
+diff-20	opnscn-api-walk	4	34.9	
+blame	git	4	12.8	
+full-clone	git-full-history	5	344.8	
+full-clone	git-depth1	5	214.5	
+full-clone	opnscn	5	37.5	
+sparse-clone	git-partial	5	188.0	
+sparse-clone	git-partial-depth1	5	132.0	
+sparse-clone	opnscn	5	12.4	
+commit-one-file	git-commit	5	41.3	
+commit-one-file	git-push	5	18.0	
+commit-one-file	opnscn	5	7.4	
+log-path	git	5	8.1	
+log-path	opnscn-api-walk	5	43.4	
+diff-20	git	5	4.3	
+diff-20	opnscn-api-walk	5	26.3	
+blame	git	5	15.7	
+land-2-concurrent	git	1	83.4	attempts=3 landed=2/2
+agents-8	git	1	435.6	attempts=36 landed=8/8
+land-2-concurrent	opnscn	1	15.3	attempts=3 landed=2/2
+agents-8	opnscn	1	33.3	attempts=28 landed=8/8
+land-2-concurrent	git	2	80.9	attempts=3 landed=2/2
+agents-8	git	2	478.6	attempts=36 landed=8/8
+land-2-concurrent	opnscn	2	13.4	attempts=3 landed=2/2
+agents-8	opnscn	2	35.3	attempts=32 landed=8/8
+land-2-concurrent	git	3	102.5	attempts=3 landed=2/2
+agents-8	git	3	477.7	attempts=36 landed=8/8
+land-2-concurrent	opnscn	3	33.3	attempts=3 landed=2/2
+agents-8	opnscn	3	78.2	attempts=36 landed=8/8
+land-2-concurrent	git	4	72.6	attempts=3 landed=2/2
+agents-8	git	4	421.0	attempts=36 landed=8/8
+land-2-concurrent	opnscn	4	12.6	attempts=3 landed=2/2
+agents-8	opnscn	4	32.9	attempts=34 landed=8/8
+land-2-concurrent	git	5	103.3	attempts=3 landed=2/2
+agents-8	git	5	621.1	attempts=36 landed=8/8
+land-2-concurrent	opnscn	5	16.9	attempts=3 landed=2/2
+agents-8	opnscn	5	74.7	attempts=34 landed=8/8
